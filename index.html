@@ -10,6 +10,16 @@
 @media(max-width:1050px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.layout-two{grid-template-columns:1fr}.app{grid-template-columns:210px minmax(0,1fr)}}
 @media(max-width:680px){.app{display:block}.sidebar{position:sticky;top:0;z-index:3;padding:10px 12px;border-right:0;border-bottom:1px solid var(--line);gap:10px}.brand{padding:0 4px}.logo{width:35px;height:35px}.nav-label,.side-note{display:none}.nav{display:flex;overflow-x:auto;gap:4px}.nav button{padding:9px 10px;white-space:nowrap;font-size:12px;gap:7px}.nav .ico{font-size:15px;width:auto}.main{padding:22px 14px}.topbar{align-items:flex-start;flex-direction:column;margin-bottom:22px}.date-pill{display:none}.stats{gap:10px}.card{padding:16px}.stat-value{font-size:27px}.task-form{grid-template-columns:1fr 1fr}.task-form .task-input{grid-column:1/-1}.task-form button{grid-column:1/-1}.habit-grid,.two-fields{grid-template-columns:1fr}.footer{flex-direction:column}}
 
+
+.project-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:15px 0;border-bottom:1px solid #eef0f3}
+.project-item:last-child{border-bottom:0}
+.project-item h3{font-size:14px;margin:0 0 4px;color:#182230}
+.project-meta{font-size:11px;color:#697586;margin-bottom:8px}
+.project-next{font-size:12px;color:#344054}
+.project-actions{display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap}
+.project-actions select{max-width:155px}
+@media(max-width:680px){#projectForm{grid-template-columns:1fr!important}.project-item{grid-template-columns:1fr}.project-actions select{max-width:100%;flex:1}.project-item .project-actions{display:grid;grid-template-columns:1fr 1fr}}
+
 /* NIX white module theme */
 :root{color-scheme:light;--bg:#ffffff;--panel:#ffffff;--panel2:#fffaf1;--line:#e7e9ee;--text:#182230;--muted:#697586;--pink:#f97316;--pink2:#facc15;--mint:#b7791f;--blue:#ffffff;--gold:#d97706}
 body{background:#fff;color:var(--text)}
@@ -83,6 +93,7 @@ body{background:#fff;color:var(--text)}
   <div><div class="nav-label">ESPAÇO PESSOAL</div><nav class="nav" id="nav">
     <button data-view="routine"><span class="ico">◷</span> Minha rotina</button>
     <button class="active" data-view="overview"><span class="ico">◈</span> Visão geral</button>
+    <button data-view="projects"><span class="ico">▣</span> Projetos</button>
     <button data-view="tasks"><span class="ico">☷</span> Tarefas</button>
     <button data-view="goals"><span class="ico">◎</span> Objetivos</button>
     <button data-view="habits"><span class="ico">▦</span> Hábitos</button>
@@ -110,6 +121,7 @@ body{background:#fff;color:var(--text)}
 <section class="module-section" aria-label="Meus módulos">
 <div class="module-head"><h2>Meus módulos</h2><span class="muted" style="font-size:12px">Acesso rápido</span></div>
 <div class="module-grid">
+<button class="module-tile" data-goto="projects"><span class="module-icon">▣</span><span class="module-copy"><strong>Projetos</strong><small>Acompanhe fases, riscos e próximos marcos.</small></span><span class="module-arrow">›</span></button>
 <button class="module-tile" data-goto="tasks"><span class="module-icon">☷</span><span class="module-copy"><strong>Tarefas</strong><small>Organize e execute sua rotina.</small></span><span class="module-arrow">›</span></button>
 <button class="module-tile" data-goto="goals"><span class="module-icon">◎</span><span class="module-copy"><strong>Objetivos</strong><small>Defina metas e acompanhe seu progresso.</small></span><span class="module-arrow">›</span></button>
 <button class="module-tile" data-goto="habits"><span class="module-icon">▥</span><span class="module-copy"><strong>Hábitos</strong><small>Construa consistência dia após dia.</small></span><span class="module-arrow">›</span></button>
@@ -184,6 +196,30 @@ body{background:#fff;color:var(--text)}
     <div class="card"><div class="card-head"><h2>Central de automações</h2><button class="btn ghost" data-goto="connections">Configurar →</button></div><p class="muted" style="font-size:12px;margin-top:-5px">Prepare as conexões para consolidar sua rotina.</p><div class="integrations" id="overviewIntegrations"></div></div>
   </div>
 </div>
+</section>
+
+<section class="view" id="view-projects">
+<h2 class="section-title">Projetos e PMO</h2>
+<p class="section-desc">Centralize iniciativas, fase, status, riscos e próximo passo. Atualize os dados conforme os alinhamentos reais.</p>
+<div class="card" style="margin-bottom:16px">
+  <div class="card-head"><h2>Novo projeto</h2><span class="status">Cadastro local</span></div>
+  <form id="projectForm" class="grid" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+    <div class="field-group"><label class="field-label" for="projectName">Nome do projeto</label><input id="projectName" class="field" required maxlength="120" placeholder="Ex.: Implantação de operação"></div>
+    <div class="field-group"><label class="field-label" for="projectClient">Cliente / área</label><input id="projectClient" class="field" maxlength="120" placeholder="Cliente ou área responsável"></div>
+    <div class="field-group"><label class="field-label" for="projectPhase">Fase</label><select id="projectPhase" class="field"><option>Triagem</option><option>Abertura</option><option>Briefing</option><option>Planejamento</option><option>Execução</option><option>Homologação</option><option>Go/No-Go</option><option>Go Live</option><option>Estabilização</option><option>Encerramento</option></select></div>
+    <div class="field-group"><label class="field-label" for="projectStatus">Status</label><select id="projectStatus" class="field"><option>A iniciar</option><option>Em andamento</option><option>Em risco</option><option>Bloqueado</option><option>Concluído</option><option>A validar</option></select></div>
+    <div class="field-group" style="grid-column:1/-1"><label class="field-label" for="projectNext">Próximo passo / pendência</label><input id="projectNext" class="field" maxlength="240" placeholder="Próxima ação, responsável ou dependência (se conhecida)"></div>
+    <button class="btn primary" type="submit" style="grid-column:1/-1">＋ Adicionar projeto</button>
+  </form>
+</div>
+<div class="grid stats" style="margin-bottom:16px">
+ <div class="card"><div class="stat-top">Projetos cadastrados <span class="stat-icon">▣</span></div><div class="stat-value" id="projectCount">0</div><div class="stat-foot">Iniciativas registradas neste painel</div></div>
+ <div class="card"><div class="stat-top">Em andamento <span class="stat-icon">◷</span></div><div class="stat-value" id="projectActive">0</div><div class="stat-foot">Status informado por você</div></div>
+ <div class="card"><div class="stat-top">Em risco ou bloqueados <span class="stat-icon">!</span></div><div class="stat-value" id="projectRisks">0</div><div class="stat-foot">Requerem revisão de pendências</div></div>
+ <div class="card"><div class="stat-top">Concluídos <span class="stat-icon">✓</span></div><div class="stat-value" id="projectDone">0</div><div class="stat-foot">Finalizados</div></div>
+</div>
+<div class="card"><div class="card-head"><h2>Carteira de projetos</h2><button class="btn ghost" id="exportProjects">Exportar CSV ↓</button></div><div id="projectList" class="task-list"></div></div>
+<p class="muted" style="font-size:11px;margin-top:12px">Este módulo salva no navegador. A sincronização com Supabase ainda precisa ser validada; não considere estes dados sincronizados entre dispositivos.</p>
 </section>
 
 <section class="view" id="view-tasks"><h2 class="section-title">Gestão de tarefas</h2><p class="section-desc">Transforme intenção em próxima ação.</p>
@@ -318,6 +354,24 @@ function dateKey(){let d=new Date();return `${d.getFullYear()}-${String(d.getMon
 if(state.habits.date!==dateKey())state.habits={date:dateKey(),items:[false,false,false,false]};
 const now=new Date();document.getElementById('today').textContent=new Intl.DateTimeFormat('pt-BR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}).format(now);
 const hour=now.getHours();document.getElementById('greeting').textContent=hour<12?'Bom dia. Vamos começar?':hour<18?'Boa tarde. Vamos avançar?':'Boa noite. Hora de organizar.';
+
+
+const PROJECT_KEY='nix-projects-v1';
+let nixProjects=readProjects();
+function readProjects(){try{const v=JSON.parse(localStorage.getItem(PROJECT_KEY)||'[]');return Array.isArray(v)?v:[]}catch{return []}}
+function saveProjects(){localStorage.setItem(PROJECT_KEY,JSON.stringify(nixProjects));renderProjects()}
+function renderProjects(){
+ const list=document.getElementById('projectList');if(!list)return;
+ const total=nixProjects.length,active=nixProjects.filter(p=>p.status==='Em andamento').length,risks=nixProjects.filter(p=>p.status==='Em risco'||p.status==='Bloqueado').length,done=nixProjects.filter(p=>p.status==='Concluído').length;
+ document.getElementById('projectCount').textContent=total;document.getElementById('projectActive').textContent=active;document.getElementById('projectRisks').textContent=risks;document.getElementById('projectDone').textContent=done;
+ list.innerHTML=nixProjects.map(p=>'<div class="project-item"><div><h3>'+esc(p.name)+'</h3><div class="project-meta">'+esc(p.client||'Cliente/área não informado')+' · '+esc(p.phase)+' · Atualizado '+esc(p.updated||'sem data')+'</div><div class="project-next"><strong>Próximo passo:</strong> '+esc(p.next||'A definir')+'</div></div><div class="project-actions"><select class="field" data-project-status="'+p.id+'" aria-label="Status de '+esc(p.name)+'">'+['A iniciar','Em andamento','Em risco','Bloqueado','Concluído','A validar'].map(s=>'<option '+(p.status===s?'selected':'')+'>'+s+'</option>').join('')+'</select><button class="btn" data-project-edit="'+p.id+'">Editar</button><button class="btn danger" data-project-delete="'+p.id+'">Excluir</button></div></div>').join('')||'<div class="empty">Nenhum projeto cadastrado. Adicione sua primeira iniciativa acima.</div>';
+ list.querySelectorAll('[data-project-status]').forEach(el=>el.addEventListener('change',()=>{const p=nixProjects.find(x=>x.id===el.dataset.projectStatus);if(p){p.status=el.value;p.updated=new Date().toLocaleDateString('pt-BR');saveProjects()}}));
+ list.querySelectorAll('[data-project-delete]').forEach(el=>el.addEventListener('click',()=>{if(confirm('Excluir este projeto do painel?')){nixProjects=nixProjects.filter(x=>x.id!==el.dataset.projectDelete);saveProjects()}}));
+ list.querySelectorAll('[data-project-edit]').forEach(el=>el.addEventListener('click',()=>{const p=nixProjects.find(x=>x.id===el.dataset.projectEdit);if(!p)return;const next=prompt('Atualize o próximo passo ou pendência:',p.next||'');if(next!==null){p.next=next.trim();p.updated=new Date().toLocaleDateString('pt-BR');saveProjects()}}));
+}
+document.getElementById('projectForm')?.addEventListener('submit',e=>{e.preventDefault();nixProjects.unshift({id:Date.now().toString(),name:document.getElementById('projectName').value.trim(),client:document.getElementById('projectClient').value.trim(),phase:document.getElementById('projectPhase').value,status:document.getElementById('projectStatus').value,next:document.getElementById('projectNext').value.trim(),updated:new Date().toLocaleDateString('pt-BR')});e.target.reset();saveProjects();toast('Projeto cadastrado')});
+document.getElementById('exportProjects')?.addEventListener('click',()=>{const rows=[['Projeto','Cliente/área','Fase','Status','Próximo passo','Atualização'],...nixProjects.map(p=>[p.name,p.client,p.phase,p.status,p.next,p.updated])];const csv=rows.map(row=>row.map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download='nix-carteira-projetos.csv';a.click();URL.revokeObjectURL(a.href)});
+renderProjects();
 
 const ROUTINE_KEY='nix-routine-checks';
 function routineDayKey(){return new Date().toLocaleDateString('en-CA')}
