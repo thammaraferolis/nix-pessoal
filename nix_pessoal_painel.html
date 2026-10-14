@@ -288,7 +288,12 @@ body{background:#fff;color:var(--text)}
  </div>
  <div id="matLibraryList" class="grid" style="gap:10px;margin-top:14px"><div class="empty">Nenhum material salvo ainda.</div></div>
 </div>
-<div class="toolbar" style="margin-top:14px"><button class="btn" type="button" id="matPreviewBtn">Pré-visualizar slides</button></div>
+<div class="toolbar" style="margin-top:14px"><button class="btn" type="button" id="matEditSlidesBtn">Editar slides individualmente</button><button class="btn" type="button" id="matPreviewBtn">Pré-visualizar slides</button></div>
+<div id="matSlideEditor" style="display:none;margin-top:14px">
+ <div class="muted" style="font-size:12px;margin-bottom:10px">Edite títulos e conteúdo, mova slides, exclua ou adicione seções. Ao aplicar, o texto será atualizado no material principal.</div>
+ <div id="matSlideEditorList" style="display:grid;gap:12px"></div>
+ <div class="toolbar" style="margin-top:12px"><button class="btn" type="button" id="matAddSlide">+ Adicionar slide</button><button class="btn primary" type="button" id="matApplySlides">Aplicar alterações ao material</button><button class="btn" type="button" id="matCancelSlides">Fechar editor</button></div>
+</div>
 <div id="matPreview" aria-live="polite" style="display:none;margin-top:14px">
  <div class="muted" style="font-size:12px;margin-bottom:10px">Prévia aproximada do conteúdo. Revise antes de exportar; o arquivo PowerPoint pode ter diferenças de paginação.</div>
  <div id="matPreviewSlides" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px"></div>
@@ -528,6 +533,41 @@ nixRenderMaterialLibrary();
 
 document.getElementById('materialForm')?.addEventListener('submit',()=>setTimeout(()=>nixSaveCurrentMaterial(false),0));
 document.getElementById('matClear')?.addEventListener('click',()=>{document.getElementById('materialForm').reset();document.getElementById('matOutput').value='';document.getElementById('matMessage').textContent='Briefing limpo.'});
+
+
+let nixSlideDraft=[];
+function nixRenderSlideEditor(){
+ const host=document.getElementById('matSlideEditorList');if(!host)return;host.replaceChildren();
+ nixSlideDraft.forEach((slide,index)=>{
+  const card=document.createElement('section');card.className='card';card.style.padding='14px';
+  const top=document.createElement('div');top.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px';
+  const label=document.createElement('strong');label.textContent='Slide '+(index+1);top.appendChild(label);
+  const controls=document.createElement('div');controls.style.cssText='display:flex;gap:6px;flex-wrap:wrap';
+  const action=(text,fn,disabled=false)=>{const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=text;b.disabled=disabled;b.style.opacity=disabled?'.45':'1';b.addEventListener('click',fn);controls.appendChild(b)};
+  action('↑ Subir',()=>{if(index>0){[nixSlideDraft[index-1],nixSlideDraft[index]]=[nixSlideDraft[index],nixSlideDraft[index-1]];nixRenderSlideEditor()}},index===0);
+  action('↓ Descer',()=>{if(index<nixSlideDraft.length-1){[nixSlideDraft[index+1],nixSlideDraft[index]]=[nixSlideDraft[index],nixSlideDraft[index+1]];nixRenderSlideEditor()}},index===nixSlideDraft.length-1);
+  action('Excluir',()=>{if(nixSlideDraft.length===1){toast('Mantenha pelo menos um slide');return}nixSlideDraft.splice(index,1);nixRenderSlideEditor()});
+  top.appendChild(controls);card.appendChild(top);
+  const titleLabel=document.createElement('label');titleLabel.className='field-label';titleLabel.textContent='Título do slide';
+  const title=document.createElement('input');title.className='field';title.value=slide.title||'';title.maxLength=180;title.addEventListener('input',()=>{nixSlideDraft[index].title=title.value});
+  const bodyLabel=document.createElement('label');bodyLabel.className='field-label';bodyLabel.style.marginTop='10px';bodyLabel.textContent='Conteúdo do slide (uma linha por item)';
+  const body=document.createElement('textarea');body.className='field';body.rows=5;body.style.resize='vertical';body.value=(slide.body||[]).join('\n');body.addEventListener('input',()=>{nixSlideDraft[index].body=body.value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)});
+  card.append(titleLabel,title,bodyLabel,body);host.appendChild(card);
+ });
+}
+document.getElementById('matEditSlidesBtn')?.addEventListener('click',()=>{
+ const text=document.getElementById('matOutput')?.value.trim();if(!text){toast('Gere um material primeiro');return}
+ nixSlideDraft=nixBuildMaterialSlides(text).map(g=>({title:g.title,body:[...g.body]}));
+ nixRenderSlideEditor();document.getElementById('matSlideEditor').style.display='block';document.getElementById('matSlideEditor').scrollIntoView({behavior:'smooth',block:'start'});
+});
+document.getElementById('matAddSlide')?.addEventListener('click',()=>{nixSlideDraft.push({title:'Novo slide',body:['Adicione o conteúdo deste slide.']});nixRenderSlideEditor()});
+document.getElementById('matApplySlides')?.addEventListener('click',()=>{
+ if(!nixSlideDraft.length){toast('Adicione ao menos um slide');return}
+ const content=nixSlideDraft.map((s,i)=>'SLIDE '+(i+1)+' | '+(s.title.trim()||'Slide sem título')+'\n'+s.body.join('\n')).join('\n\n');
+ document.getElementById('matOutput').value=content;document.getElementById('matMessage').textContent='Slides atualizados. Revise a prévia e salve na biblioteca para manter esta versão.';
+ document.getElementById('matSlideEditor').style.display='none';toast('Alterações aplicadas ao material');
+});
+document.getElementById('matCancelSlides')?.addEventListener('click',()=>{document.getElementById('matSlideEditor').style.display='none'});
 
 function nixBuildMaterialSlides(text){
  const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean), groups=[], slideHead=/^SLIDE\s*\d+\s*\|?\s*/i;
