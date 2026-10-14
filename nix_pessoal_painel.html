@@ -523,7 +523,7 @@ function nixRenderMaterialLibrary(){
   const actions=document.createElement('div');actions.style.cssText='display:flex;gap:6px;flex-wrap:wrap';
   const make=(label,fn,cls='btn')=>{const b=document.createElement('button');b.type='button';b.className=cls;b.textContent=label;b.addEventListener('click',fn);actions.appendChild(b)};
   make('Abrir',()=>{document.getElementById('matTopic').value=item.title;document.getElementById('matType').value=item.type||'apresentacao';document.getElementById('matAudience').value=item.audience||'';document.getElementById('matObjective').value=item.objective||'';document.getElementById('matTone').value=item.tone||'Executivo e objetivo';document.getElementById('matDetails').value=item.details||'';document.getElementById('matOutput').value=item.content;document.getElementById('matDesign').value=item.design||'executivo';document.getElementById('matMessage').textContent='Material recuperado da biblioteca local.';toast('Material aberto')});
-  make('Baixar .txt',()=>{const blob=new Blob([item.content],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(item.title||'material-nix').replace(/[^a-z0-9-_]+/gi,'-').toLowerCase()+'.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)});
+  make('Baixar .txt',()=>{const blob=new Blob([item.content],{type:'text/plain;charset=utf-8'}),filename=(item.title||'material-nix').replace(/[^a-z0-9-_]+/gi,'-').toLowerCase()+'.txt';nixOfferDownload(blob,filename);document.getElementById('matMessage').textContent='Arquivo preparado. Se o download não iniciar, toque no link de download exibido abaixo desta mensagem.'});
   make('Excluir',()=>{if(!confirm('Excluir este material salvo?'))return;nixWriteMaterialLibrary(nixReadMaterialLibrary().filter(x=>x.id!==item.id));nixRenderMaterialLibrary();toast('Material removido')},'btn danger');
   card.append(info,actions);host.appendChild(card);
  })
@@ -531,7 +531,7 @@ function nixRenderMaterialLibrary(){
 document.getElementById('matSaveLibrary')?.addEventListener('click',()=>nixSaveCurrentMaterial(true));
 document.getElementById('matExportLibrary')?.addEventListener('click',()=>{
  const items=nixReadMaterialLibrary();if(!items.length){toast('A biblioteca está vazia');return}
- const blob=new Blob([JSON.stringify({format:'nix-material-library',version:1,exportedAt:new Date().toISOString(),items},null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='nix-biblioteca-materiais.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast('Backup da biblioteca preparado')
+ const blob=new Blob([JSON.stringify({format:'nix-material-library',version:1,exportedAt:new Date().toISOString(),items},null,2)],{type:'application/json;charset=utf-8'});nixOfferDownload(blob,'nix-biblioteca-materiais.json');document.getElementById('matMessage').textContent='Backup preparado. Se o download não iniciar, toque no link de download exibido abaixo desta mensagem.';toast('Backup preparado; use o link alternativo se necessário')
 });
 document.getElementById('matImportLibrary')?.addEventListener('click',()=>document.getElementById('matImportFile')?.click());
 document.getElementById('matImportFile')?.addEventListener('change',async e=>{
