@@ -27,6 +27,18 @@
   <div class="side-note"><strong>Seu sistema, suas regras.</strong>Seus dados deste protótipo ficam salvos localmente neste navegador. Nenhuma conta bancária ou caixa de e-mail é acessada.</div>
 </aside>
 <main class="main">
+
+<div id="nixCloudAuth" class="card" style="margin-bottom:20px;border-color:#ff2d8d70">
+  <div class="card-head"><h2>☁️ Sincronização NIX</h2><span id="nixCloudStatus" class="status">Não conectado</span></div>
+  <p class="muted" style="font-size:12px;margin-top:-5px">Entre com seu e-mail para sincronizar tarefas, objetivos, hábitos, finanças e anotações entre dispositivos.</p>
+  <form id="nixAuthForm" style="display:flex;gap:8px;flex-wrap:wrap">
+    <input id="nixAuthEmail" type="email" class="field" style="flex:1;min-width:210px" placeholder="Seu e-mail" autocomplete="email" required>
+    <button class="btn primary" id="nixAuthSubmit">Enviar link de acesso</button>
+    <button class="btn" id="nixAuthOut" type="button" style="display:none">Sair</button>
+  </form>
+  <p id="nixAuthMessage" class="muted" style="font-size:12px;margin-bottom:0">Entre com seu e-mail. Você receberá um link para confirmar o acesso.</p>
+</div>
+
 <header class="topbar"><div><div class="eyebrow">CENTRAL DE INTELIGÊNCIA PESSOAL</div><h1 id="greeting">Bem-vinda de volta.</h1><p class="sub">Clareza para decidir. Foco para executar.</p></div><div class="date-pill" id="today"></div></header>
 
 <section class="view active" id="view-overview">
@@ -64,12 +76,85 @@
 <section class="view" id="view-connections"><h2 class="section-title">Integrações e automações</h2><p class="section-desc">A estrutura está preparada para evoluir. Conexões reais exigem autorização segura e, para automação contínua, um serviço publicado.</p><div class="grid layout-two"><div class="card"><div class="card-head"><h2>Conexões planejadas</h2><span class="tag">Preparação</span></div><div class="integrations" id="connectionsList"></div></div><div class="card"><h2 style="margin-bottom:12px">Próxima etapa técnica</h2><p class="muted" style="font-size:13px">1. Publicar este site em hospedagem gratuita.<br><br>2. Configurar autenticação e armazenamento persistente.<br><br>3. Autorizar o Google Calendar e Gmail por OAuth, com permissões mínimas.<br><br>4. Criar sincronização e tratamento de erros.<br><br>5. Validar privacidade e acesso pelo celular.</p><div style="border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--gold);font-size:12px">Não insira senhas, tokens ou chaves de API nesta página. Ainda não existe sincronização automática ativa.</div></div></div></section>
 <div class="footer"><span>NIX PESSOAL · PROTÓTIPO WEB 0.2</span><span>Dados locais neste navegador · Integrações ainda não conectadas</span></div>
 </main></div><div id="toast" class="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const NIX_SUPABASE_URL='https://yfudeqzvngueiqratgit.supabase.co';
+const NIX_SUPABASE_KEY='sb_publishable_j0opSangOcOjMd4bxhYJjw_n7k-LCpr';
+const NIX_REDIRECT_URL='https://thammaraferolis.github.io/nix-pessoal/nix_pessoal_painel.html';
+const nixCloud=window.supabase?.createClient(NIX_SUPABASE_URL,NIX_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+let nixCloudUser=null,nixCloudBusy=false,nixCloudTimer=null;
+function nixMessage(s){const e=document.getElementById('nixAuthMessage');if(e)e.textContent=s}
+function nixStatus(s,ok=false){const e=document.getElementById('nixCloudStatus');if(e){e.textContent=s;e.classList.toggle('ready',ok)}}
+function nixScheduleSync(){if(!nixCloudUser||nixCloudBusy)return;clearTimeout(nixCloudTimer);nixCloudTimer=setTimeout(nixCloudSave,700)}
+async function nixCloudLoad(){
+ if(!nixCloud||!nixCloudUser)return;
+ nixCloudBusy=true;nixStatus('Carregando…');
+ try{
+  const [tr,gr,hr,nr,fr]=await Promise.all([
+   nixCloud.from('nix_tasks').select('*').order('created_at',{ascending:true}),
+   nixCloud.from('nix_goals').select('*').order('created_at',{ascending:false}).limit(1),
+   nixCloud.from('nix_habits').select('*').eq('completed_on',dateKey()),
+   nixCloud.from('nix_notes').select('*').order('updated_at',{ascending:false}).limit(1),
+   nixCloud.from('nix_finance').select('*').maybeSingle()
+  ]);
+  for(const r of [tr,gr,hr,nr,fr])if(r.error)throw r.error;
+  const hasCloud=tr.data.length||gr.data.length||hr.data.length||nr.data.length||fr.data;
+  if(!hasCloud){nixCloudBusy=false;await nixCloudSave();return}
+  state.tasks=tr.data.map(t=>({id:t.id,title:t.title,area:t.area,done:t.done}));
+  if(gr.data.length){state.goal=gr.data[0].title;state.goalWhy=gr.data[0].why||''}
+  state.habits={date:dateKey(),items:['Planejar o dia','Estudar ou aprender algo','Movimentar o corpo','Revisar prioridades'].map((_,i)=>!!hr.data.find(x=>x.habit_key==='habit-'+i)?.completed)};
+  if(nr.data.length)state.notes=nr.data[0].content;
+  if(fr.data){state.income=Number(fr.data.income)||0;state.expenses=Number(fr.data.expenses)||0}
+  localStorage.setItem(KEY,JSON.stringify(state));render();nixStatus('Sincronizado',true);nixMessage('Conta conectada. As alterações sincronizáveis serão salvas no Supabase.');
+ }catch(e){nixStatus('Falha ao carregar');nixMessage('Erro ao carregar dados: '+(e.message||'verifique a conexão e a configuração de autenticação.'))}
+ finally{nixCloudBusy=false}
+}
+async function nixCloudSave(){
+ if(!nixCloud||!nixCloudUser||nixCloudBusy)return;
+ nixCloudBusy=true;nixStatus('Sincronizando…');
+ try{
+  const uid=nixCloudUser.id;
+  const {data:oldTasks,error:te}=await nixCloud.from('nix_tasks').select('id');if(te)throw te;
+  const keep=new Set(state.tasks.filter(t=>typeof t.id==='string').map(t=>t.id));
+  for(const t of oldTasks||[])if(!keep.has(t.id)){const {error}=await nixCloud.from('nix_tasks').delete().eq('id',t.id);if(error)throw error}
+  if(state.tasks.length){
+   const payload=state.tasks.map(t=>({...(typeof t.id==='string'?{id:t.id}:{}),user_id:uid,title:t.title,area:t.area||'Pessoal',done:!!t.done}));
+   const {data,error}=await nixCloud.from('nix_tasks').upsert(payload).select();if(error)throw error;
+   state.tasks=data.map(t=>({id:t.id,title:t.title,area:t.area,done:t.done}));
+  }
+  const {data:goals,error:ge}=await nixCloud.from('nix_goals').select('id').limit(1);if(ge)throw ge;
+  if(goals?.length){const {error}=await nixCloud.from('nix_goals').update({title:state.goal||'Objetivo principal',why:state.goalWhy||''}).eq('id',goals[0].id);if(error)throw error}
+  else if(state.goal){const {error}=await nixCloud.from('nix_goals').insert({user_id:uid,title:state.goal,why:state.goalWhy||''});if(error)throw error}
+  const habitNames=['Planejar o dia','Estudar ou aprender algo','Movimentar o corpo','Revisar prioridades'];
+  for(let i=0;i<habitNames.length;i++){const {error}=await nixCloud.from('nix_habits').upsert({user_id:uid,habit_key:'habit-'+i,title:habitNames[i],completed_on:dateKey(),completed:!!state.habits.items[i]},{onConflict:'user_id,habit_key,completed_on'});if(error)throw error}
+  const {data:notes,error:ne}=await nixCloud.from('nix_notes').select('id').limit(1);if(ne)throw ne;
+  if(notes?.length){const {error}=await nixCloud.from('nix_notes').update({title:'Anotações rápidas',content:state.notes||''}).eq('id',notes[0].id);if(error)throw error}
+  else if(state.notes){const {error}=await nixCloud.from('nix_notes').insert({user_id:uid,title:'Anotações rápidas',content:state.notes});if(error)throw error}
+  const {error:fe}=await nixCloud.from('nix_finance').upsert({user_id:uid,income:Number(state.income)||0,expenses:Number(state.expenses)||0},{onConflict:'user_id'});if(fe)throw fe;
+  localStorage.setItem(KEY,JSON.stringify(state));nixStatus('Sincronizado',true);nixMessage('Conta conectada. Dados sincronizados com segurança.');
+ }catch(e){nixStatus('Falha ao sincronizar');nixMessage('Não foi possível salvar no Supabase: '+(e.message||'verifique a configuração de autenticação.'))}
+ finally{nixCloudBusy=false}
+}
+function nixWireAuth(){
+ if(!nixCloud){nixStatus('Indisponível');nixMessage('A biblioteca de conexão não carregou. Verifique sua internet e recarregue a página.');return}
+ document.getElementById('nixAuthForm').addEventListener('submit',async e=>{
+  e.preventDefault();const email=document.getElementById('nixAuthEmail').value.trim(),btn=document.getElementById('nixAuthSubmit');btn.disabled=true;
+  try{const {error}=await nixCloud.auth.signInWithOtp({email,options:{emailRedirectTo:NIX_REDIRECT_URL}});if(error)throw error;nixStatus('Aguardando confirmação');nixMessage('Se o login por e-mail estiver habilitado, enviaremos um link. Abra-o neste dispositivo para concluir a conexão.')}
+  catch(err){nixMessage('Não foi possível enviar o link: '+(err.message||'verifique as configurações de autenticação do Supabase'))}
+  finally{btn.disabled=false}
+ });
+ document.getElementById('nixAuthOut').addEventListener('click',async()=>{await nixCloud.auth.signOut();nixCloudUser=null;nixStatus('Não conectado');nixMessage('Você saiu da conta. Os dados locais continuam neste navegador.');document.getElementById('nixAuthOut').style.display='none'});
+ nixCloud.auth.onAuthStateChange((event,session)=>{
+  nixCloudUser=session?.user||null;document.getElementById('nixAuthOut').style.display=nixCloudUser?'inline-block':'none';
+  if(nixCloudUser){nixStatus('Conectando…');nixMessage('Acesso confirmado. Carregando seus dados…');setTimeout(nixCloudLoad,0)}
+  else if(event==='SIGNED_OUT')nixStatus('Não conectado');
+ });
+}
 const KEY='nix-pessoal-v02';
 const defaultState={tasks:[{id:1,title:'Planejar as prioridades do dia',area:'Pessoal',done:false},{id:2,title:'Avançar no projeto pessoal',area:'Trabalho',done:false},{id:3,title:'Dedicar tempo aos estudos',area:'Estudos',done:false}],goal:'Construir uma rotina mais organizada',goalWhy:'Ter mais clareza, foco e equilíbrio no dia a dia.',habits:{date:new Date().toLocaleDateString('en-CA'),items:[false,false,false,false]},income:0,expenses:0,notes:''};
 let state=load();
 function load(){try{return {...defaultState,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{return structuredClone(defaultState)}}
-function persist(){localStorage.setItem(KEY,JSON.stringify(state));render()}
+function persist(){localStorage.setItem(KEY,JSON.stringify(state));render();nixScheduleSync()}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function money(n){return (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
 function toast(msg){let t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2300)}
@@ -108,5 +193,6 @@ if(state.habits.date!==dateKey())state.habits={date:dateKey(),items:[false,false
 const now=new Date();document.getElementById('today').textContent=new Intl.DateTimeFormat('pt-BR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}).format(now);
 const hour=now.getHours();document.getElementById('greeting').textContent=hour<12?'Bom dia. Vamos começar?':hour<18?'Boa tarde. Vamos avançar?':'Boa noite. Hora de organizar.';
 render();
+nixWireAuth();
 </script>
 </body></html>
