@@ -281,6 +281,11 @@ body{background:#fff;color:var(--text)}
 <textarea id="matOutput" class="input" rows="22" placeholder="Seu material aparecerá aqui após gerar." style="width:100%;min-height:420px;white-space:pre-wrap"></textarea>
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn primary" type="button" id="matCopy">Copiar conteúdo</button><button class="btn" type="button" id="matDownload">Baixar .txt</button><label class="label" for="matDesign" style="align-self:center">Estilo do PowerPoint</label><select id="matDesign" class="input" style="max-width:220px"><option value="executivo">Executivo — branco e laranja</option><option value="treinamento">Treinamento — amarelo e grafite</option><option value="minimal">Minimalista — branco e cinza</option></select><button class="btn primary" type="button" id="matPptx">Baixar PowerPoint editável</button><button class="btn" type="button" id="matPrompt">Gerar prompt profissional</button></div>
 <div id="matMessage" class="muted" style="font-size:12px;margin-top:10px">O gerador cria uma primeira versão estruturada; não inventa dados que não foram informados.</div>
+<div class="toolbar" style="margin-top:14px"><button class="btn" type="button" id="matPreviewBtn">Pré-visualizar slides</button></div>
+<div id="matPreview" aria-live="polite" style="display:none;margin-top:14px">
+ <div class="muted" style="font-size:12px;margin-bottom:10px">Prévia aproximada do conteúdo. Revise antes de exportar; o arquivo PowerPoint pode ter diferenças de paginação.</div>
+ <div id="matPreviewSlides" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px"></div>
+</div>
 </div></div>
 </section>
 
@@ -468,6 +473,37 @@ function buildMaterial(){
 }
 document.getElementById('materialForm')?.addEventListener('submit',e=>{e.preventDefault();buildMaterial();toast('Material gerado')});
 document.getElementById('matClear')?.addEventListener('click',()=>{document.getElementById('materialForm').reset();document.getElementById('matOutput').value='';document.getElementById('matMessage').textContent='Briefing limpo.'});
+
+function nixBuildMaterialSlides(text){
+ const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean), groups=[], slideHead=/^SLIDE\s*\d+\s*\|?\s*/i;
+ if(lines.some(x=>slideHead.test(x))){
+  let cur=null;for(const line of lines){if(slideHead.test(line)){if(cur)groups.push(cur);cur={title:line.replace(slideHead,'').trim()||'Seção',body:[]}}else if(cur)cur.body.push(line)}if(cur)groups.push(cur);
+ }else{
+  let cur={title:document.getElementById('matTopic')?.value.trim()||'Material',body:[]};
+  const isHeading=x=>/^[A-ZÁÉÍÓÚÂÊÔÃÕÇ0-9][A-ZÁÉÍÓÚÂÊÔÃÕÇ0-9\s/|&—–:().-]{2,}$/.test(x)&&x.length<88;
+  for(const line of lines){if(isHeading(line)){if(cur.body.length)groups.push(cur);cur={title:line.replace(/:$/,''),body:[]}}else{cur.body.push(line);if(cur.body.length>=7){groups.push(cur);cur={title:'Continuação',body:[]}}}}if(cur.body.length||!groups.length)groups.push(cur);
+ }
+ const expanded=[];groups.forEach(g=>{if(g.body.length<=8){expanded.push(g);return}for(let i=0;i<g.body.length;i+=8)expanded.push({title:i?g.title+' — continuação':g.title,body:g.body.slice(i,i+8)})});
+ return expanded.filter(g=>g.title||g.body.length);
+}
+document.getElementById('matPreviewBtn')?.addEventListener('click',()=>{
+ const text=document.getElementById('matOutput')?.value.trim();if(!text){toast('Gere um material primeiro');return}
+ const wrap=document.getElementById('matPreview'),host=document.getElementById('matPreviewSlides'),design=document.getElementById('matDesign')?.value||'executivo';
+ const colors=design==='treinamento'?{bg:'#fffdf7',ink:'#263238',accent:'#f6c945',muted:'#68747d'}:design==='minimal'?{bg:'#fff',ink:'#202633',accent:'#d5d9e0',muted:'#667085'}:{bg:'#fff',ink:'#243047',accent:'#f6c945',muted:'#657084'};
+ host.replaceChildren();
+ nixBuildMaterialSlides(text).forEach((g,i)=>{
+  const card=document.createElement('article');card.style.cssText='aspect-ratio:16/9;min-height:180px;border:1px solid #d0d5dd;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 4px 14px #00000010;background:'+colors.bg+';color:'+colors.ink;
+  const bar=document.createElement('div');bar.style.cssText='height:7px;background:'+colors.accent+';flex-shrink:0';card.appendChild(bar);
+  const inner=document.createElement('div');inner.style.cssText='padding:14px 16px;overflow:hidden;flex:1;display:flex;flex-direction:column';card.appendChild(inner);
+  const meta=document.createElement('div');meta.textContent='NIX  •  SLIDE '+(i+1);meta.style.cssText='font-size:9px;letter-spacing:.12em;color:'+colors.muted+';margin-bottom:8px';inner.appendChild(meta);
+  const title=document.createElement('h4');title.textContent=g.title;title.style.cssText='font-size:clamp(13px,2vw,18px);line-height:1.2;margin:0 0 9px;font-weight:750';inner.appendChild(title);
+  const body=document.createElement('div');body.style.cssText='font-size:clamp(9px,1.2vw,12px);line-height:1.45;overflow:hidden;color:'+colors.muted;
+  g.body.slice(0,8).forEach(line=>{const p=document.createElement('div');p.textContent=line.replace(/^[•\-]\s*/,'• ');p.style.marginBottom='4px';body.appendChild(p)});inner.appendChild(body);
+  const foot=document.createElement('div');foot.textContent='Prévia de conteúdo • '+(i+1);foot.style.cssText='font-size:8px;color:'+colors.muted+';margin-top:auto;padding-top:6px';inner.appendChild(foot);host.appendChild(card);
+ });
+ wrap.style.display='block';wrap.scrollIntoView({behavior:'smooth',block:'nearest'});toast('Prévia criada');
+});
+
 document.getElementById('matCopy')?.addEventListener('click',async()=>{const v=document.getElementById('matOutput').value;if(!v.trim()){toast('Gere um material primeiro');return}try{await navigator.clipboard.writeText(v);toast('Conteúdo copiado')}catch(e){document.getElementById('matOutput').select();toast('Selecione e copie o texto')}})
 document.getElementById('matDownload')?.addEventListener('click',()=>{const v=document.getElementById('matOutput').value;if(!v.trim()){toast('Gere um material primeiro');return}const blob=new Blob([v],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(document.getElementById('matTopic').value.trim()||'material-nix').replace(/[^a-z0-9-_]+/gi,'-').toLowerCase()+'.txt';a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast('Se o download não iniciar, verifique a pasta Downloads do navegador')});
 document.getElementById('matPrompt')?.addEventListener('click',()=>{const v=document.getElementById('matOutput').value;if(!v.trim()){toast('Gere um material primeiro');return}document.getElementById('matOutput').value='PROMPT PARA REFINAR O MATERIAL\n\nAtue como especialista em design instrucional, comunicação corporativa e estruturação de conteúdo. Refine o material abaixo mantendo fidelidade aos fatos fornecidos. Não invente métricas, datas, responsáveis ou resultados; sinalize lacunas como [A DEFINIR]. Organize com hierarquia clara, linguagem '+document.getElementById('matTone').value.toLowerCase()+', recomendações de layout e sugestões visuais adequadas ao público. Para apresentações, proponha uma mensagem-chave por slide e conteúdo conciso.\n\nBRIEFING\nTema: '+document.getElementById('matTopic').value+'\nPúblico: '+(document.getElementById('matAudience').value||'A definir')+'\nObjetivo: '+(document.getElementById('matObjective').value||'A definir')+'\nInformações confirmadas: '+(document.getElementById('matDetails').value||'Não informadas')+'\n\nRASCUNHO ATUAL\n'+v;document.getElementById('matMessage').textContent='Prompt de refinamento gerado. Copie para a ferramenta de IA que você já utiliza.';toast('Prompt profissional criado')});
