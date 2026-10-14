@@ -281,6 +281,13 @@ body{background:#fff;color:var(--text)}
 <textarea id="matOutput" class="input" rows="22" placeholder="Seu material aparecerá aqui após gerar." style="width:100%;min-height:420px;white-space:pre-wrap"></textarea>
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn primary" type="button" id="matCopy">Copiar conteúdo</button><button class="btn" type="button" id="matDownload">Baixar .txt</button><label class="label" for="matDesign" style="align-self:center">Estilo do PowerPoint</label><select id="matDesign" class="input" style="max-width:220px"><option value="executivo">Executivo — branco e laranja</option><option value="treinamento">Treinamento — amarelo e grafite</option><option value="minimal">Minimalista — branco e cinza</option></select><button class="btn primary" type="button" id="matPptx">Baixar PowerPoint editável</button><button class="btn" type="button" id="matPrompt">Gerar prompt profissional</button></div>
 <div id="matMessage" class="muted" style="font-size:12px;margin-top:10px">O gerador cria uma primeira versão estruturada; não inventa dados que não foram informados.</div>
+<div class="card" style="margin-top:16px">
+ <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+  <div><h3 class="card-title" style="margin:0">3. Biblioteca de materiais</h3><p class="muted" style="font-size:12px;margin:5px 0 0">Histórico salvo neste navegador, sem conta e sem custo. Limpar dados do navegador pode apagar os registros.</p></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" type="button" id="matSaveLibrary">Salvar na biblioteca</button><button class="btn" type="button" id="matExportLibrary">Exportar biblioteca (.json)</button><button class="btn" type="button" id="matImportLibrary">Importar biblioteca</button><input type="file" id="matImportFile" accept=".json,application/json" hidden></div>
+ </div>
+ <div id="matLibraryList" class="grid" style="gap:10px;margin-top:14px"><div class="empty">Nenhum material salvo ainda.</div></div>
+</div>
 <div class="toolbar" style="margin-top:14px"><button class="btn" type="button" id="matPreviewBtn">Pré-visualizar slides</button></div>
 <div id="matPreview" aria-live="polite" style="display:none;margin-top:14px">
  <div class="muted" style="font-size:12px;margin-bottom:10px">Prévia aproximada do conteúdo. Revise antes de exportar; o arquivo PowerPoint pode ter diferenças de paginação.</div>
@@ -472,6 +479,54 @@ function buildMaterial(){
  document.getElementById('matMessage').textContent='Material criado localmente. Campos entre colchetes e dados “a definir” precisam ser completados com informações confirmadas.';
 }
 document.getElementById('materialForm')?.addEventListener('submit',e=>{e.preventDefault();buildMaterial();toast('Material gerado')});
+
+const NIX_MATERIAL_LIBRARY_KEY='nix-material-library-v1';
+function nixReadMaterialLibrary(){try{const x=JSON.parse(localStorage.getItem(NIX_MATERIAL_LIBRARY_KEY)||'[]');return Array.isArray(x)?x.filter(i=>i&&i.id&&typeof i.content==='string'):[]}catch(e){return []}}
+function nixWriteMaterialLibrary(items){try{localStorage.setItem(NIX_MATERIAL_LIBRARY_KEY,JSON.stringify(items.slice(0,50)));return true}catch(e){toast('Armazenamento cheio ou indisponível. Exporte a biblioteca para guardar seus materiais.');return false}}
+function nixCurrentMaterial(){return {id:'mat-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),title:document.getElementById('matTopic').value.trim()||'Material sem título',type:document.getElementById('matType').value,audience:document.getElementById('matAudience').value,objective:document.getElementById('matObjective').value,tone:document.getElementById('matTone').value,details:document.getElementById('matDetails').value,content:document.getElementById('matOutput').value,design:document.getElementById('matDesign')?.value||'executivo',updatedAt:new Date().toISOString()}}
+function nixSaveCurrentMaterial(showToast=true){
+ const content=document.getElementById('matOutput')?.value.trim();if(!content){toast('Gere ou escreva um material antes de salvar');return}
+ const item=nixCurrentMaterial(),items=nixReadMaterialLibrary();
+ const match=items.findIndex(x=>x.title===item.title&&x.type===item.type);
+ if(match>=0){item.id=items[match].id;item.createdAt=items[match].createdAt||items[match].updatedAt;items.splice(match,1)}
+ else item.createdAt=item.updatedAt;
+ items.unshift(item);
+ if(nixWriteMaterialLibrary(items)){nixRenderMaterialLibrary();if(showToast)toast('Material salvo na biblioteca')}
+}
+function nixRenderMaterialLibrary(){
+ const host=document.getElementById('matLibraryList');if(!host)return;host.replaceChildren();
+ const items=nixReadMaterialLibrary();
+ if(!items.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='Nenhum material salvo ainda. Gere um conteúdo e toque em “Salvar na biblioteca”.';host.appendChild(empty);return}
+ items.forEach(item=>{
+  const card=document.createElement('div');card.style.cssText='border:1px solid var(--line);border-radius:12px;padding:13px;display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap';
+  const info=document.createElement('div');info.style.cssText='min-width:0;flex:1';
+  const title=document.createElement('strong');title.textContent=item.title;title.style.display='block';info.appendChild(title);
+  const meta=document.createElement('div');meta.className='muted';meta.style.cssText='font-size:11px;margin-top:3px';meta.textContent=(item.type||'Material')+' • '+new Date(item.updatedAt||item.createdAt||Date.now()).toLocaleString('pt-BR');info.appendChild(meta);
+  const excerpt=document.createElement('div');excerpt.className='muted';excerpt.style.cssText='font-size:12px;margin-top:7px;white-space:pre-wrap';excerpt.textContent=item.content.slice(0,180)+(item.content.length>180?'…':'');info.appendChild(excerpt);
+  const actions=document.createElement('div');actions.style.cssText='display:flex;gap:6px;flex-wrap:wrap';
+  const make=(label,fn,cls='btn')=>{const b=document.createElement('button');b.type='button';b.className=cls;b.textContent=label;b.addEventListener('click',fn);actions.appendChild(b)};
+  make('Abrir',()=>{document.getElementById('matTopic').value=item.title;document.getElementById('matType').value=item.type||'apresentacao';document.getElementById('matAudience').value=item.audience||'';document.getElementById('matObjective').value=item.objective||'';document.getElementById('matTone').value=item.tone||'Executivo e objetivo';document.getElementById('matDetails').value=item.details||'';document.getElementById('matOutput').value=item.content;document.getElementById('matDesign').value=item.design||'executivo';document.getElementById('matMessage').textContent='Material recuperado da biblioteca local.';toast('Material aberto')});
+  make('Baixar .txt',()=>{const blob=new Blob([item.content],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(item.title||'material-nix').replace(/[^a-z0-9-_]+/gi,'-').toLowerCase()+'.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)});
+  make('Excluir',()=>{if(!confirm('Excluir este material salvo?'))return;nixWriteMaterialLibrary(nixReadMaterialLibrary().filter(x=>x.id!==item.id));nixRenderMaterialLibrary();toast('Material removido')},'btn danger');
+  card.append(info,actions);host.appendChild(card);
+ })
+}
+document.getElementById('matSaveLibrary')?.addEventListener('click',()=>nixSaveCurrentMaterial(true));
+document.getElementById('matExportLibrary')?.addEventListener('click',()=>{
+ const items=nixReadMaterialLibrary();if(!items.length){toast('A biblioteca está vazia');return}
+ const blob=new Blob([JSON.stringify({format:'nix-material-library',version:1,exportedAt:new Date().toISOString(),items},null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='nix-biblioteca-materiais.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast('Backup da biblioteca preparado')
+});
+document.getElementById('matImportLibrary')?.addEventListener('click',()=>document.getElementById('matImportFile')?.click());
+document.getElementById('matImportFile')?.addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{const parsed=JSON.parse(await file.text()),incoming=Array.isArray(parsed)?parsed:parsed.items;if(!Array.isArray(incoming))throw new Error('Formato inválido');
+  const clean=incoming.filter(i=>i&&typeof i.content==='string').map(i=>({...i,id:i.id||'mat-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),title:String(i.title||'Material importado').slice(0,180),content:i.content.slice(0,100000)}));
+  const current=nixReadMaterialLibrary(),byId=new Map(current.map(i=>[i.id,i]));clean.forEach(i=>byId.set(i.id,i));if(nixWriteMaterialLibrary([...byId.values()].sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))))){nixRenderMaterialLibrary();toast('Biblioteca importada')}
+ }catch(err){toast('Não foi possível importar. Selecione um backup JSON do NIX.')}finally{e.target.value=''}
+});
+nixRenderMaterialLibrary();
+
+document.getElementById('materialForm')?.addEventListener('submit',()=>setTimeout(()=>nixSaveCurrentMaterial(false),0));
 document.getElementById('matClear')?.addEventListener('click',()=>{document.getElementById('materialForm').reset();document.getElementById('matOutput').value='';document.getElementById('matMessage').textContent='Briefing limpo.'});
 
 function nixBuildMaterialSlides(text){
