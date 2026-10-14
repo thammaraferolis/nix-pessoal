@@ -279,7 +279,7 @@ body{background:#fff;color:var(--text)}
 <div class="card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><h3 class="card-title">2. Material gerado</h3><span class="pill">Edição livre</span></div>
 <p class="muted" style="font-size:13px">O texto abaixo é editável. Você pode copiar para Word, PowerPoint, e-mail ou ferramenta de criação.</p>
 <textarea id="matOutput" class="input" rows="22" placeholder="Seu material aparecerá aqui após gerar." style="width:100%;min-height:420px;white-space:pre-wrap"></textarea>
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn primary" type="button" id="matCopy">Copiar conteúdo</button><button class="btn" type="button" id="matDownload">Baixar .txt</button><button class="btn" type="button" id="matPrompt">Gerar prompt profissional</button></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn primary" type="button" id="matCopy">Copiar conteúdo</button><button class="btn" type="button" id="matDownload">Baixar .txt</button><button class="btn primary" type="button" id="matPptx">Baixar PowerPoint editável</button><button class="btn" type="button" id="matPrompt">Gerar prompt profissional</button></div>
 <div id="matMessage" class="muted" style="font-size:12px;margin-top:10px">O gerador cria uma primeira versão estruturada; não inventa dados que não foram informados.</div>
 </div></div>
 </section>
@@ -309,6 +309,7 @@ body{background:#fff;color:var(--text)}
 <section class="view" id="view-connections"><h2 class="section-title">Integrações e automações</h2><p class="section-desc">A estrutura está preparada para evoluir. Conexões reais exigem autorização segura e, para automação contínua, um serviço publicado.</p><div class="grid layout-two"><div class="card"><div class="card-head"><h2>Conexões planejadas</h2><span class="tag">Preparação</span></div><div class="integrations" id="connectionsList"></div></div><div class="card"><h2 style="margin-bottom:12px">Próxima etapa técnica</h2><p class="muted" style="font-size:13px">1. Publicar este site em hospedagem gratuita.<br><br>2. Configurar autenticação e armazenamento persistente.<br><br>3. Autorizar o Google Calendar e Gmail por OAuth, com permissões mínimas.<br><br>4. Criar sincronização e tratamento de erros.<br><br>5. Validar privacidade e acesso pelo celular.</p><div style="border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--gold);font-size:12px">Não insira senhas, tokens ou chaves de API nesta página. Ainda não existe sincronização automática ativa.</div></div></div></section>
 <div class="footer"><span>NIX PESSOAL · PROTÓTIPO WEB 0.2</span><span>Dados locais neste navegador · Integrações ainda não conectadas</span></div>
 </main></div><div id="toast" class="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const NIX_SUPABASE_URL='https://yfudeqzvngueiqratgit.supabase.co';
@@ -549,5 +550,41 @@ document.querySelectorAll('#nav [data-view]').forEach(btn=>btn.addEventListener(
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSideMenu()});
 render();
 nixWireAuth();
+
+document.getElementById('matPptx')?.addEventListener('click',async()=>{
+ const output=document.getElementById('matOutput').value.trim();
+ if(!output){toast('Gere um material primeiro');return}
+ if(typeof pptxgen==='undefined'){toast('Biblioteca de PowerPoint indisponível. Tente novamente com internet.');return}
+ try{
+  const pptx=new pptxgen();pptx.layout='LAYOUT_WIDE';pptx.author='NIX Personal Intelligence';pptx.subject='Material gerado pelo NIX';pptx.title=document.getElementById('matTopic').value.trim()||'Material NIX';pptx.company='NIX Personal Intelligence';pptx.lang='pt-BR';
+  pptx.theme={headFontFace:'Aptos Display',bodyFontFace:'Aptos',lang:'pt-BR'};
+  const orange='F28C28',yellow='F6C945',ink='243047',muted='657084',white='FFFFFF';
+  const title=document.getElementById('matTopic').value.trim()||'Material NIX';
+  const type=document.getElementById('matType').selectedOptions[0]?.text||'Material';
+  let lines=output.split(/\r?\n/).map(x=>x.trim()).filter(x=>x.length);
+  let groups=[];
+  if(/APRESENTAÇÃO EXECUTIVA/i.test(output)&&lines.some(x=>/^SLIDE\s*\d+/i.test(x))){
+    let current=null;
+    for(const line of lines){if(/^SLIDE\s*\d+/i.test(line)){if(current)groups.push(current);current={title:line.replace(/^SLIDE\s*\d+\s*\|?\s*/i,'').trim(),body:[]}}else if(current)current.body.push(line)}
+    if(current)groups.push(current);
+  }else{
+    let current={title:title,body:[]};
+    for(const line of lines){
+      if(current.body.length>=7){groups.push(current);current={title:'Continuação',body:[]}}
+      current.body.push(line);
+    }
+    if(current.body.length)groups.push(current);
+  }
+  if(!groups.length)groups=[{title:title,body:lines}];
+  const cover=pptx.addSlide();cover.background={color:white};cover.addShape(pptx.ShapeType.rect,{x:0,y:0,w:0.24,h:7.5,line:{color:orange,transparency:100},fill:{color:orange}});cover.addShape(pptx.ShapeType.rect,{x:0.24,y:0,w:13.09,h:0.18,line:{color:yellow,transparency:100},fill:{color:yellow}});cover.addText(type.toUpperCase(),{x:0.85,y:1.45,w:10.8,h:0.35,fontFace:'Aptos',fontSize:13,bold:true,color:orange,charSpacing:1.5,margin:0});cover.addText(title,{x:0.82,y:2.05,w:11.5,h:1.5,fontFace:'Aptos Display',fontSize:32,bold:true,color:ink,breakLine:false,fit:'shrink',margin:0.02});cover.addShape(pptx.ShapeType.line,{x:0.85,y:3.85,w:2.0,h:0,line:{color:yellow,width:5}});cover.addText('Material editável • NIX Personal Intelligence',{x:0.85,y:4.18,w:8.8,h:0.4,fontSize:14,color:muted,margin:0});cover.addText(new Date().toLocaleDateString('pt-BR'),{x:0.85,y:6.65,w:3,h:0.25,fontSize:10,color:muted,margin:0});
+  groups.forEach((g,i)=>{
+   const slide=pptx.addSlide();slide.background={color:white};slide.addShape(pptx.ShapeType.rect,{x:0,y:0,w:13.333,h:0.16,line:{color:yellow,transparency:100},fill:{color:yellow}});slide.addShape(pptx.ShapeType.rect,{x:0.62,y:0.72,w:0.12,h:0.62,line:{color:orange,transparency:100},fill:{color:orange}});slide.addText(g.title||('Seção '+(i+1)),{x:0.92,y:0.68,w:11.5,h:0.62,fontFace:'Aptos Display',fontSize:25,bold:true,color:ink,fit:'shrink',margin:0});
+   const body=g.body.join('\n').replace(/^\s+/,'');
+   slide.addText(body||'Conteúdo a complementar.',{x:0.95,y:1.62,w:11.35,h:4.95,fontFace:'Aptos',fontSize:17,color:ink,breakLine:false,fit:'shrink',valign:'top',margin:0.08,paraSpaceAfterPt:9,bullet:{indent:16},lineSpacingMultiple:1.1});
+   slide.addShape(pptx.ShapeType.line,{x:0.95,y:7.0,w:11.4,h:0,line:{color:'E6E8ED',width:0.8}});slide.addText('NIX PERSONAL INTELLIGENCE',{x:0.95,y:7.08,w:5,h:0.18,fontSize:8,color:muted,charSpacing:1,margin:0});slide.addText(String(i+2).padStart(2,'0'),{x:11.8,y:7.06,w:0.5,h:0.2,fontSize:9,color:orange,bold:true,align:'right',margin:0});
+  });
+  await pptx.writeFile({fileName:(title||'material-nix').replace(/[^a-z0-9-_]+/gi,'-').toLowerCase()+'.pptx'});toast('PowerPoint editável gerado');
+ }catch(err){console.error(err);toast('Não foi possível gerar o PowerPoint. Tente novamente.')}
+});
 </script>
 </body></html>
