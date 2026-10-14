@@ -284,6 +284,7 @@ async function nixCloudLoad(){
    nixCloud.from('nix_finance').select('*').maybeSingle()
   ]);
   for(const r of [tr,gr,hr,nr,fr])if(r.error)throw r.error;
+  await nixLoadPersonalModules();
   const hasCloud=tr.data.length||gr.data.length||hr.data.length||nr.data.length||fr.data;
   if(!hasCloud){nixCloudBusy=false;await nixCloudSave();return}
   state.tasks=tr.data.map(t=>({id:t.id,title:t.title,area:t.area,done:t.done}));
@@ -320,6 +321,33 @@ async function nixCloudSave(){
   localStorage.setItem(KEY,JSON.stringify(state));nixStatus('Sincronizado',true);nixMessage('Conta conectada. Dados sincronizados com segurança.');
  }catch(e){nixStatus('Falha ao sincronizar');nixMessage('Não foi possível salvar no Supabase: '+(e.message||'verifique a configuração de autenticação.'))}
  finally{nixCloudBusy=false}
+}
+async function nixLoadPersonalModules(){
+ if(!nixCloud||!nixCloudUser)return;
+ const specs=[
+  {table:'nix_projects',key:'nix-projects-v1',map:r=>({id:r.id,name:r.name,client:r.client,phase:r.phase,status:r.status,next:r.next_step,updated:r.updated_at?new Date(r.updated_at).toLocaleDateString('pt-BR'):''})},
+  {table:'nix_study_items',key:'nix-study-v1',map:r=>({id:r.id,name:r.name,type:r.item_type,due:r.due_date||'',next:r.next_action,status:r.status,created:r.created_at})},
+  {table:'nix_personal_items',key:'nix-personal-v1',map:r=>({id:r.id,name:r.name,category:r.category,due:r.due_date||'',status:r.status,created:r.created_at})}
+ ];
+ for(const spec of specs){const {data,error}=await nixCloud.from(spec.table).select('*').order('created_at',{ascending:false});if(error)throw error;if(data?.length)localStorage.setItem(spec.key,JSON.stringify(data.map(spec.map)))}
+ const {data:focus,error}=await nixCloud.from('nix_weekly_focus').select('content').maybeSingle();if(error)throw error;if(focus)localStorage.setItem('nix-weekly-focus-v1',focus.content);
+ paintItems('study');paintItems('personal');paintProjects();
+ const wf=document.getElementById('weeklyFocus');if(wf)wf.value=localStorage.getItem('nix-weekly-focus-v1')||'';
+}
+async function nixSaveModuleRows(table,key,rows,mapRow){
+ if(!nixCloud||!nixCloudUser)return;
+ const uid=nixCloudUser.id;
+ const {error:delError}=await nixCloud.from(table).delete().eq('user_id',uid);if(delError)throw delError;
+ if(rows.length){const payload=rows.map(r=>({user_id:uid,...mapRow(r)}));const {error}=await nixCloud.from(table).insert(payload);if(error)throw error}
+}
+async function nixSyncPersonalModules(){
+ if(!nixCloud||!nixCloudUser||nixCloudBusy)return;
+ try{
+  await nixSaveModuleRows('nix_projects','nix-projects-v1',readItems('nix-projects-v1'),r=>({name:r.name,client:r.client||'',phase:r.phase||'Triagem',status:r.status||'A fazer',next_step:r.next||''}));
+  await nixSaveModuleRows('nix_study_items','nix-study-v1',readItems('nix-study-v1'),r=>({name:r.name,item_type:r.type||'Disciplina',due_date:r.due||null,next_action:r.next||'',status:r.status||'A fazer'}));
+  await nixSaveModuleRows('nix_personal_items','nix-personal-v1',readItems('nix-personal-v1'),r=>({name:r.name,category:r.category||'Organização',due_date:r.due||null,status:r.status||'A fazer'}));
+  const {error}=await nixCloud.from('nix_weekly_focus').upsert({user_id:nixCloudUser.id,content:localStorage.getItem('nix-weekly-focus-v1')||'',updated_at:new Date().toISOString()});if(error)throw error;
+ }catch(e){nixMessage('Dados locais salvos. A sincronização em nuvem não concluiu: '+(e.message||'erro de conexão'))}
 }
 function nixWireAuth(){
  if(!nixCloud){nixStatus('Indisponível');nixMessage('A biblioteca de conexão não carregou. Verifique sua internet e recarregue a página.');return}
@@ -383,7 +411,7 @@ const hour=now.getHours();document.getElementById('greeting').textContent=hour<1
 const PROJECT_KEY='nix-projects-v1';
 let nixProjects=readProjects();
 function readProjects(){try{const v=JSON.parse(localStorage.getItem(PROJECT_KEY)||'[]');return Array.isArray(v)?v:[]}catch{return []}}
-function saveProjects(){localStorage.setItem(PROJECT_KEY,JSON.stringify(nixProjects));renderProjects()}
+function saveProjects(){localStorage.setItem(PROJECT_KEY,JSON.stringify(nixProjects));renderProjects();nixSyncPersonalModules()}
 function renderProjects(){
  const list=document.getElementById('projectList');if(!list)return;
  const total=nixProjects.length,active=nixProjects.filter(p=>p.status==='Em andamento').length,risks=nixProjects.filter(p=>p.status==='Em risco'||p.status==='Bloqueado').length,done=nixProjects.filter(p=>p.status==='Concluído').length;
@@ -410,6 +438,7 @@ const STUDY_KEY='nix-study-v1', PERSONAL_KEY='nix-personal-v1', WEEKLY_KEY='nix-
 function readItems(key){try{return JSON.parse(localStorage.getItem(key)||'[]')}catch{return []}}
 function writeItems(key,items){localStorage.setItem(key,JSON.stringify(items))}
 function escapeHTML(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function paintProjects(){if(typeof renderProjects==='function')renderProjects()}
 function paintItems(kind){
  const study=kind==='study', key=study?STUDY_KEY:PERSONAL_KEY, list=document.getElementById(study?'studyList':'personalList'), empty=document.getElementById(study?'studyEmpty':'personalEmpty');
  if(!list)return; const items=readItems(key); list.innerHTML='';
@@ -419,7 +448,7 @@ function paintItems(kind){
   const done=item.status==='Concluído';
   row.innerHTML='<div class="list-main"><strong>'+escapeHTML(item.name)+'</strong><small>'+escapeHTML(item.type||item.category||'')+(item.due?' · Prazo: '+escapeHTML(item.due):'')+(item.next?' · Próxima ação: '+escapeHTML(item.next):'')+'</small></div><div class="toolbar"><select class="field compact" aria-label="Status"><option '+(item.status==='A fazer'?'selected':'')+'>A fazer</option><option '+(item.status==='Em andamento'?'selected':'')+'>Em andamento</option><option '+(done?'selected':'')+'>Concluído</option></select><button class="btn danger" type="button">Excluir</button></div>';
   const sel=row.querySelector('select');sel.addEventListener('change',()=>{const all=readItems(key),x=all.find(i=>i.id===item.id);if(x)x.status=sel.value;writeItems(key,all);paintItems(kind)});
-  row.querySelector('button').addEventListener('click',()=>{if(confirm('Excluir este item?')){writeItems(key,readItems(key).filter(i=>i.id!==item.id));paintItems(kind)}});
+  row.querySelector('button').addEventListener('click',()=>{if(confirm('Excluir este item?')){writeItems(key,readItems(key).filter(i=>i.id!==item.id));paintItems(kind);nixSyncPersonalModules()}});
   list.appendChild(row);
  });
  if(study){document.getElementById('studyTotal').textContent=items.length;document.getElementById('studyActive').textContent=items.filter(i=>i.status==='Em andamento').length;document.getElementById('studyDone').textContent=items.filter(i=>i.status==='Concluído').length}
@@ -431,7 +460,7 @@ function exportItems(key,filename,headers){const rows=[headers,...readItems(key)
 document.getElementById('studyExport')?.addEventListener('click',()=>exportItems(STUDY_KEY,'nix-estudos-tcc.csv',['Nome','Tipo/Categoria','Prazo','Próxima ação','Status']));
 document.getElementById('personalExport')?.addEventListener('click',()=>exportItems(PERSONAL_KEY,'nix-vida-pessoal.csv',['Nome','Tipo/Categoria','Prazo','Status']));
 const weekly=document.getElementById('weeklyFocus');if(weekly)weekly.value=localStorage.getItem(WEEKLY_KEY)||'';
-document.getElementById('saveWeeklyFocus')?.addEventListener('click',()=>{localStorage.setItem(WEEKLY_KEY,weekly.value);document.getElementById('weeklySaved').textContent='Salvo neste navegador';toast('Prioridades da semana salvas')});
+document.getElementById('saveWeeklyFocus')?.addEventListener('click',()=>{localStorage.setItem(WEEKLY_KEY,weekly.value);nixSyncPersonalModules();document.getElementById('weeklySaved').textContent='Salvo neste navegador';toast('Prioridades da semana salvas')});
 paintItems('study');paintItems('personal');
 
 render();
