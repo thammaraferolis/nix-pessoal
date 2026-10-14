@@ -279,7 +279,7 @@ body{background:#fff;color:var(--text)}
 <div class="card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><h3 class="card-title">2. Material gerado</h3><span class="pill">Edição livre</span></div>
 <p class="muted" style="font-size:13px">O texto abaixo é editável. Você pode copiar para Word, PowerPoint, e-mail ou ferramenta de criação.</p>
 <textarea id="matOutput" class="input" rows="22" placeholder="Seu material aparecerá aqui após gerar." style="width:100%;min-height:420px;white-space:pre-wrap"></textarea>
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn primary" type="button" id="matCopy">Copiar conteúdo</button><button class="btn" type="button" id="matDownload">Baixar .txt</button><button class="btn primary" type="button" id="matPptx">Baixar PowerPoint editável</button><button class="btn" type="button" id="matPrompt">Gerar prompt profissional</button></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn primary" type="button" id="matCopy">Copiar conteúdo</button><button class="btn" type="button" id="matDownload">Baixar .txt</button><label class="label" for="matDesign" style="align-self:center">Estilo do PowerPoint</label><select id="matDesign" class="input" style="max-width:220px"><option value="executivo">Executivo — branco e laranja</option><option value="treinamento">Treinamento — amarelo e grafite</option><option value="minimal">Minimalista — branco e cinza</option></select><button class="btn primary" type="button" id="matPptx">Baixar PowerPoint editável</button><button class="btn" type="button" id="matPrompt">Gerar prompt profissional</button></div>
 <div id="matMessage" class="muted" style="font-size:12px;margin-top:10px">O gerador cria uma primeira versão estruturada; não inventa dados que não foram informados.</div>
 </div></div>
 </section>
@@ -554,37 +554,73 @@ nixWireAuth();
 document.getElementById('matPptx')?.addEventListener('click',async()=>{
  const output=document.getElementById('matOutput').value.trim();
  if(!output){toast('Gere um material primeiro');return}
- if(typeof pptxgen==='undefined'){toast('Biblioteca de PowerPoint indisponível. Tente novamente com internet.');return}
+ if(typeof pptxgen==='undefined'){toast('Biblioteca de PowerPoint indisponível. Conecte-se à internet e tente novamente.');return}
+ const btn=document.getElementById('matPptx');const oldLabel=btn.textContent;btn.disabled=true;btn.textContent='Preparando arquivo…';
  try{
   const pptx=new pptxgen();pptx.layout='LAYOUT_WIDE';pptx.author='NIX Personal Intelligence';pptx.subject='Material gerado pelo NIX';pptx.title=document.getElementById('matTopic').value.trim()||'Material NIX';pptx.company='NIX Personal Intelligence';pptx.lang='pt-BR';
   pptx.theme={headFontFace:'Aptos Display',bodyFontFace:'Aptos',lang:'pt-BR'};
-  const orange='F28C28',yellow='F6C945',ink='243047',muted='657084',white='FFFFFF';
+  const design=document.getElementById('matDesign')?.value||'executivo';
+  const palette=design==='treinamento'?{accent:'F6C945',accent2:'F28C28',ink:'263238',muted:'68747D',bg:'FFFDF7'}:design==='minimal'?{accent:'D5D9E0',accent2:'667085',ink:'202633',muted:'667085',bg:'FFFFFF'}:{accent:'F6C945',accent2:'F28C28',ink:'243047',muted:'657084',bg:'FFFFFF'};
   const title=document.getElementById('matTopic').value.trim()||'Material NIX';
   const type=document.getElementById('matType').selectedOptions[0]?.text||'Material';
-  let lines=output.split(/\r?\n/).map(x=>x.trim()).filter(x=>x.length);
+  const raw=output.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
   let groups=[];
-  if(/APRESENTAÇÃO EXECUTIVA/i.test(output)&&lines.some(x=>/^SLIDE\s*\d+/i.test(x))){
-    let current=null;
-    for(const line of lines){if(/^SLIDE\s*\d+/i.test(line)){if(current)groups.push(current);current={title:line.replace(/^SLIDE\s*\d+\s*\|?\s*/i,'').trim(),body:[]}}else if(current)current.body.push(line)}
-    if(current)groups.push(current);
+  const slideHead=/^SLIDE\s*\d+\s*\|?\s*/i;
+  if(raw.some(x=>slideHead.test(x))){
+   let current=null;
+   for(const line of raw){if(slideHead.test(line)){if(current)groups.push(current);current={title:line.replace(slideHead,'').trim()||'Seção',body:[]}}else if(current)current.body.push(line)}
+   if(current)groups.push(current);
   }else{
-    let current={title:title,body:[]};
-    for(const line of lines){
-      if(current.body.length>=7){groups.push(current);current={title:'Continuação',body:[]}}
+   const isHeading=x=>/^[A-ZÁÉÍÓÚÂÊÔÃÕÇ0-9][A-ZÁÉÍÓÚÂÊÔÃÕÇ0-9\s/|&—–:().-]{2,}$/.test(x)&&x.length<88;
+   let current={title:type,body:[]};
+   for(const line of raw){
+    if(isHeading(line)){
+      if(current.body.length||current.title!==type)groups.push(current);
+      current={title:line.replace(/:$/,''),body:[]};
+    }else{
       current.body.push(line);
+      if(current.body.length>=7){groups.push(current);current={title:'Continuação',body:[]}}
     }
-    if(current.body.length)groups.push(current);
+   }
+   if(current.body.length||!groups.length)groups.push(current);
   }
-  if(!groups.length)groups=[{title:title,body:lines}];
-  const cover=pptx.addSlide();cover.background={color:white};cover.addShape(pptx.ShapeType.rect,{x:0,y:0,w:0.24,h:7.5,line:{color:orange,transparency:100},fill:{color:orange}});cover.addShape(pptx.ShapeType.rect,{x:0.24,y:0,w:13.09,h:0.18,line:{color:yellow,transparency:100},fill:{color:yellow}});cover.addText(type.toUpperCase(),{x:0.85,y:1.45,w:10.8,h:0.35,fontFace:'Aptos',fontSize:13,bold:true,color:orange,charSpacing:1.5,margin:0});cover.addText(title,{x:0.82,y:2.05,w:11.5,h:1.5,fontFace:'Aptos Display',fontSize:32,bold:true,color:ink,breakLine:false,fit:'shrink',margin:0.02});cover.addShape(pptx.ShapeType.line,{x:0.85,y:3.85,w:2.0,h:0,line:{color:yellow,width:5}});cover.addText('Material editável • NIX Personal Intelligence',{x:0.85,y:4.18,w:8.8,h:0.4,fontSize:14,color:muted,margin:0});cover.addText(new Date().toLocaleDateString('pt-BR'),{x:0.85,y:6.65,w:3,h:0.25,fontSize:10,color:muted,margin:0});
+  groups=groups.filter(g=>g.title||g.body.length);
+  if(!groups.length)groups=[{title:title,body:raw}];
+  // Capa
+  const cover=pptx.addSlide();cover.background={color:palette.bg};
+  cover.addShape(pptx.ShapeType.rect,{x:0,y:0,w:0.25,h:7.5,line:{color:palette.accent2,transparency:100},fill:{color:palette.accent2}});
+  cover.addShape(pptx.ShapeType.rect,{x:0.25,y:0,w:13.08,h:0.18,line:{color:palette.accent,transparency:100},fill:{color:palette.accent}});
+  cover.addText(type.toUpperCase(),{x:0.9,y:1.42,w:10.8,h:0.35,fontFace:'Aptos',fontSize:12,bold:true,color:palette.accent2,charSpacing:1.2,margin:0});
+  cover.addText(title,{x:0.88,y:2.0,w:11.4,h:1.55,fontFace:'Aptos Display',fontSize:32,bold:true,color:palette.ink,fit:'shrink',margin:0.02,breakLine:false});
+  cover.addShape(pptx.ShapeType.line,{x:0.9,y:3.82,w:2.0,h:0,line:{color:palette.accent,width:5}});
+  cover.addText('Material editável • NIX Personal Intelligence',{x:0.9,y:4.15,w:8.8,h:0.4,fontSize:14,color:palette.muted,margin:0});
+  cover.addText(new Date().toLocaleDateString('pt-BR'),{x:0.9,y:6.7,w:3,h:0.25,fontSize:10,color:palette.muted,margin:0});
   groups.forEach((g,i)=>{
-   const slide=pptx.addSlide();slide.background={color:white};slide.addShape(pptx.ShapeType.rect,{x:0,y:0,w:13.333,h:0.16,line:{color:yellow,transparency:100},fill:{color:yellow}});slide.addShape(pptx.ShapeType.rect,{x:0.62,y:0.72,w:0.12,h:0.62,line:{color:orange,transparency:100},fill:{color:orange}});slide.addText(g.title||('Seção '+(i+1)),{x:0.92,y:0.68,w:11.5,h:0.62,fontFace:'Aptos Display',fontSize:25,bold:true,color:ink,fit:'shrink',margin:0});
-   const body=g.body.join('\n').replace(/^\s+/,'');
-   slide.addText(body||'Conteúdo a complementar.',{x:0.95,y:1.62,w:11.35,h:4.95,fontFace:'Aptos',fontSize:17,color:ink,breakLine:false,fit:'shrink',valign:'top',margin:0.08,paraSpaceAfterPt:9,bullet:{indent:16},lineSpacingMultiple:1.1});
-   slide.addShape(pptx.ShapeType.line,{x:0.95,y:7.0,w:11.4,h:0,line:{color:'E6E8ED',width:0.8}});slide.addText('NIX PERSONAL INTELLIGENCE',{x:0.95,y:7.08,w:5,h:0.18,fontSize:8,color:muted,charSpacing:1,margin:0});slide.addText(String(i+2).padStart(2,'0'),{x:11.8,y:7.06,w:0.5,h:0.2,fontSize:9,color:orange,bold:true,align:'right',margin:0});
+   const slide=pptx.addSlide();slide.background={color:palette.bg};
+   slide.addShape(pptx.ShapeType.rect,{x:0,y:0,w:13.333,h:0.16,line:{color:palette.accent,transparency:100},fill:{color:palette.accent}});
+   slide.addShape(pptx.ShapeType.rect,{x:0.62,y:0.72,w:0.12,h:0.62,line:{color:palette.accent2,transparency:100},fill:{color:palette.accent2}});
+   slide.addText(g.title||('Seção '+(i+1)),{x:0.92,y:0.68,w:11.5,h:0.62,fontFace:'Aptos Display',fontSize:24,bold:true,color:palette.ink,fit:'shrink',margin:0});
+   let y=1.58;const bottom=6.75;
+   const body=g.body.length?g.body:['Conteúdo a complementar.'];
+   body.forEach((line,j)=>{
+    if(y>bottom)return;
+    const heading=/^[A-ZÁÉÍÓÚÂÊÔÃÕÇ0-9][A-ZÁÉÍÓÚÂÊÔÃÕÇ0-9\s/|&—–:().-]{2,}$/.test(line)&&line.length<88;
+    const bullet=/^(•|☐|[-*])\s*/.test(line);
+    const text=line.replace(/^(•|☐|[-*])\s*/,'');
+    const h=heading?0.34:0.42;
+    slide.addText(text,{x:heading?0.98:1.12,y,w:heading?11.1:10.95,h:heading?0.32:0.38,fontFace:heading?'Aptos Display':'Aptos',fontSize:heading?13:14,bold:heading||bullet,color:heading?palette.accent2:palette.ink,bullet:bullet?{indent:10}:undefined,breakLine:false,fit:'shrink',margin:0.02,valign:'mid'});
+    y+=h+(heading?0.06:0.1);
+   });
+   if(body.length>12){slide.addText('Conteúdo resumido nesta página; revise o texto completo no NIX.',{x:0.98,y:6.68,w:10.8,h:0.2,fontSize:8,color:palette.muted,italic:true,margin:0})}
+   slide.addShape(pptx.ShapeType.line,{x:0.95,y:7.0,w:11.4,h:0,line:{color:'E6E8ED',width:0.8}});
+   slide.addText('NIX PERSONAL INTELLIGENCE',{x:0.95,y:7.08,w:5,h:0.18,fontSize:8,color:palette.muted,charSpacing:1,margin:0});
+   slide.addText(String(i+2).padStart(2,'0'),{x:11.8,y:7.06,w:0.5,h:0.2,fontSize:9,color:palette.accent2,bold:true,align:'right',margin:0});
   });
-  await pptx.writeFile({fileName:(title||'material-nix').replace(/[^a-z0-9-_]+/gi,'-').toLowerCase()+'.pptx'});toast('PowerPoint editável gerado');
- }catch(err){console.error(err);toast('Não foi possível gerar o PowerPoint. Tente novamente.')}
+  await pptx.writeFile({fileName:(title||'material-nix').replace(/[^a-z0-9-_]+/gi,'-').toLowerCase()+'.pptx'});
+  document.getElementById('matMessage').textContent='PowerPoint criado com '+(groups.length+1)+' slides. Abra o arquivo e revise quebras de linha, conteúdo e dados antes de apresentar.';
+  toast('PowerPoint editável gerado');
+ }catch(err){console.error(err);document.getElementById('matMessage').textContent='Falha na exportação. Confira a conexão e tente novamente.';toast('Não foi possível gerar o PowerPoint.')}
+ finally{btn.disabled=false;btn.textContent=oldLabel}
 });
 </script>
 </body></html>
