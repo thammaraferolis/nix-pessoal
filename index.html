@@ -585,7 +585,14 @@ document.getElementById('matPptx')?.addEventListener('click',async()=>{
    if(current.body.length||!groups.length)groups.push(current);
   }
   groups=groups.filter(g=>g.title||g.body.length);
-  if(!groups.length)groups=[{title:title,body:raw}];
+  // Divide blocos longos para evitar que o texto ultrapasse a área útil do slide.
+  groups=groups.flatMap(g=>{
+   if(g.body.length<=9)return [g];
+   const chunks=[];
+   for(let p=0;p<g.body.length;p+=8)chunks.push({title:p===0?g.title:(g.title+' — continuação'),body:g.body.slice(p,p+8)});
+   return chunks;
+  });
+  if(!groups.length)groups=[{title:title,body:raw.slice(0,8)}];
   // Capa
   const cover=pptx.addSlide();cover.background={color:palette.bg};
   cover.addShape(pptx.ShapeType.rect,{x:0,y:0,w:0.25,h:7.5,line:{color:palette.accent2,transparency:100},fill:{color:palette.accent2}});
