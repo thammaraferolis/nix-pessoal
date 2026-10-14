@@ -94,6 +94,8 @@ body{background:#fff;color:var(--text)}
     <button data-view="routine"><span class="ico">◷</span> Minha rotina</button>
     <button class="active" data-view="overview"><span class="ico">◈</span> Visão geral</button>
     <button data-view="projects"><span class="ico">▣</span> Projetos</button>
+    <button data-view="study"><span class="ico">✦</span> Estudos & TCC</button>
+    <button data-view="personal"><span class="ico">♡</span> Vida pessoal</button>
     <button data-view="tasks"><span class="ico">☷</span> Tarefas</button>
     <button data-view="goals"><span class="ico">◎</span> Objetivos</button>
     <button data-view="habits"><span class="ico">▦</span> Hábitos</button>
@@ -234,6 +236,28 @@ body{background:#fff;color:var(--text)}
 <section class="view" id="view-finance"><h2 class="section-title">Visão financeira</h2><p class="section-desc">Um resumo simples para começar. Não há conexão bancária ativa.</p><div class="grid layout-two"><div class="card"><div class="field-group"><label class="field-label" for="income">Receitas mensais (R$)</label><input id="income" class="field" type="number" min="0" step=".01" placeholder="0,00"></div><div class="field-group"><label class="field-label" for="expenses">Despesas mensais (R$)</label><input id="expenses" class="field" type="number" min="0" step=".01" placeholder="0,00"></div><button class="btn primary" id="saveFinance">Salvar valores</button></div><div class="card"><div class="stat-top">Saldo mensal estimado <span class="stat-icon">R$</span></div><div class="money-total" id="balanceLarge">R$ 0,00</div><p class="muted" style="font-size:12px">Saldo calculado com base nos valores que você informar.</p></div></div></section>
 
 <section class="view" id="view-notes"><h2 class="section-title">Anotações rápidas</h2><p class="section-desc">Capture ideias e lembretes sem perder o fluxo.</p><div class="card"><textarea id="notesInput" class="field note-area" maxlength="12000" placeholder="Escreva aqui suas anotações..."></textarea><div class="toolbar" style="margin:12px 0 0"><button id="saveNotes" class="btn primary">Salvar anotações</button><button id="copyNotes" class="btn">Copiar texto</button><button id="downloadNotes" class="btn">Exportar .txt</button></div></div></section>
+
+<section class="view" id="view-study">
+<h2 class="section-title">Estudos & TCC</h2><p class="section-desc">Organize disciplinas, entregas e próximos passos acadêmicos. Os registros ficam salvos neste navegador.</p>
+<div class="stats" style="margin-bottom:16px"><div class="stat"><span>Itens cadastrados</span><strong id="studyTotal">0</strong></div><div class="stat"><span>Em andamento</span><strong id="studyActive">0</strong></div><div class="stat"><span>Concluídos</span><strong id="studyDone">0</strong></div></div>
+<div class="card"><h3 class="card-title">Adicionar disciplina ou tarefa</h3><form id="studyForm" class="form-grid">
+<div><label class="label" for="studyName">Disciplina / entrega</label><input id="studyName" class="field" required maxlength="120" placeholder="Ex.: TCC — definir tema"></div>
+<div><label class="label" for="studyType">Tipo</label><select id="studyType" class="field"><option> TCC </option><option>Disciplina</option><option>Leitura / pesquisa</option><option>Entrega</option></select></div>
+<div><label class="label" for="studyDue">Prazo (opcional)</label><input id="studyDue" class="field" type="date"></div>
+<div><label class="label" for="studyNext">Próxima ação</label><input id="studyNext" class="field" maxlength="180" placeholder="Ex.: pesquisar referências"></div>
+<div class="form-actions"><button class="btn primary" type="submit">Adicionar à trilha</button></div></form></div>
+<div class="card" style="margin-top:16px"><div class="toolbar"><h3 class="card-title" style="margin:0">Minha trilha acadêmica</h3><button id="studyExport" class="btn">Exportar CSV</button></div><div id="studyList" class="list"></div><p id="studyEmpty" class="empty">Nenhum item cadastrado ainda. Adicione sua primeira disciplina, entrega ou ação do TCC.</p></div>
+</section>
+<section class="view" id="view-personal">
+<h2 class="section-title">Vida pessoal</h2><p class="section-desc">Um espaço simples para pendências pessoais, organização da semana e autocuidado — sem misturar com a carteira de projetos do trabalho.</p>
+<div class="card"><h3 class="card-title">Adicionar pendência pessoal</h3><form id="personalForm" class="form-grid">
+<div><label class="label" for="personalName">O que precisa fazer?</label><input id="personalName" class="field" required maxlength="140" placeholder="Ex.: resolver uma pendência"></div>
+<div><label class="label" for="personalCategory">Categoria</label><select id="personalCategory" class="field"><option>Organização</option><option>Casa</option><option>Documentos</option><option>Bem-estar</option><option>Estudos</option><option>Outro</option></select></div>
+<div><label class="label" for="personalDue">Data (opcional)</label><input id="personalDue" class="field" type="date"></div>
+<div class="form-actions"><button class="btn primary" type="submit">Adicionar pendência</button></div></form></div>
+<div class="card" style="margin-top:16px"><div class="toolbar"><h3 class="card-title" style="margin:0">Minha lista pessoal</h3><button id="personalExport" class="btn">Exportar CSV</button></div><div id="personalList" class="list"></div><p id="personalEmpty" class="empty">Sua lista está vazia. Cadastre aqui apenas o que quiser acompanhar.</p></div>
+<div class="card" style="margin-top:16px"><h3 class="card-title">Planejamento semanal</h3><p class="muted">Use este campo para definir até três prioridades pessoais para a semana.</p><textarea id="weeklyFocus" class="field note-area" maxlength="3000" placeholder="1. ...&#10;2. ...&#10;3. ..."></textarea><div class="toolbar" style="margin-top:10px"><button id="saveWeeklyFocus" class="btn primary">Salvar prioridades</button><span id="weeklySaved" class="muted"></span></div></div>
+</section>
 
 <section class="view" id="view-connections"><h2 class="section-title">Integrações e automações</h2><p class="section-desc">A estrutura está preparada para evoluir. Conexões reais exigem autorização segura e, para automação contínua, um serviço publicado.</p><div class="grid layout-two"><div class="card"><div class="card-head"><h2>Conexões planejadas</h2><span class="tag">Preparação</span></div><div class="integrations" id="connectionsList"></div></div><div class="card"><h2 style="margin-bottom:12px">Próxima etapa técnica</h2><p class="muted" style="font-size:13px">1. Publicar este site em hospedagem gratuita.<br><br>2. Configurar autenticação e armazenamento persistente.<br><br>3. Autorizar o Google Calendar e Gmail por OAuth, com permissões mínimas.<br><br>4. Criar sincronização e tratamento de erros.<br><br>5. Validar privacidade e acesso pelo celular.</p><div style="border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--gold);font-size:12px">Não insira senhas, tokens ou chaves de API nesta página. Ainda não existe sincronização automática ativa.</div></div></div></section>
 <div class="footer"><span>NIX PESSOAL · PROTÓTIPO WEB 0.2</span><span>Dados locais neste navegador · Integrações ainda não conectadas</span></div>
@@ -381,6 +405,34 @@ function saveRoutineChecks(){const checks={};document.querySelectorAll('[data-ro
 document.querySelectorAll('[data-routine]').forEach(el=>el.addEventListener('change',saveRoutineChecks));
 document.getElementById('routineReset')?.addEventListener('click',()=>{localStorage.removeItem(ROUTINE_KEY);paintRoutineChecks();toast('Checklist reiniciado')});
 paintRoutineChecks();
+
+const STUDY_KEY='nix-study-v1', PERSONAL_KEY='nix-personal-v1', WEEKLY_KEY='nix-weekly-focus-v1';
+function readItems(key){try{return JSON.parse(localStorage.getItem(key)||'[]')}catch{return []}}
+function writeItems(key,items){localStorage.setItem(key,JSON.stringify(items))}
+function escapeHTML(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function paintItems(kind){
+ const study=kind==='study', key=study?STUDY_KEY:PERSONAL_KEY, list=document.getElementById(study?'studyList':'personalList'), empty=document.getElementById(study?'studyEmpty':'personalEmpty');
+ if(!list)return; const items=readItems(key); list.innerHTML='';
+ if(empty)empty.style.display=items.length?'none':'block';
+ items.forEach(item=>{
+  const row=document.createElement('div');row.className='list-item';
+  const done=item.status==='Concluído';
+  row.innerHTML='<div class="list-main"><strong>'+escapeHTML(item.name)+'</strong><small>'+escapeHTML(item.type||item.category||'')+(item.due?' · Prazo: '+escapeHTML(item.due):'')+(item.next?' · Próxima ação: '+escapeHTML(item.next):'')+'</small></div><div class="toolbar"><select class="field compact" aria-label="Status"><option '+(item.status==='A fazer'?'selected':'')+'>A fazer</option><option '+(item.status==='Em andamento'?'selected':'')+'>Em andamento</option><option '+(done?'selected':'')+'>Concluído</option></select><button class="btn danger" type="button">Excluir</button></div>';
+  const sel=row.querySelector('select');sel.addEventListener('change',()=>{const all=readItems(key),x=all.find(i=>i.id===item.id);if(x)x.status=sel.value;writeItems(key,all);paintItems(kind)});
+  row.querySelector('button').addEventListener('click',()=>{if(confirm('Excluir este item?')){writeItems(key,readItems(key).filter(i=>i.id!==item.id));paintItems(kind)}});
+  list.appendChild(row);
+ });
+ if(study){document.getElementById('studyTotal').textContent=items.length;document.getElementById('studyActive').textContent=items.filter(i=>i.status==='Em andamento').length;document.getElementById('studyDone').textContent=items.filter(i=>i.status==='Concluído').length}
+}
+function addItem(kind,item){const key=kind==='study'?STUDY_KEY:PERSONAL_KEY;const all=readItems(key);all.unshift({...item,id:Date.now().toString(),status:'A fazer',created:new Date().toISOString()});writeItems(key,all);paintItems(kind)}
+document.getElementById('studyForm')?.addEventListener('submit',e=>{e.preventDefault();addItem('study',{name:document.getElementById('studyName').value.trim(),type:document.getElementById('studyType').value.trim(),due:document.getElementById('studyDue').value,next:document.getElementById('studyNext').value.trim()});e.target.reset();toast('Item de estudo adicionado')});
+document.getElementById('personalForm')?.addEventListener('submit',e=>{e.preventDefault();addItem('personal',{name:document.getElementById('personalName').value.trim(),category:document.getElementById('personalCategory').value,due:document.getElementById('personalDue').value});e.target.reset();toast('Pendência adicionada')});
+function exportItems(key,filename,headers){const rows=[headers,...readItems(key).map(i=>headers.map(h=>({'Nome':i.name,'Tipo/Categoria':i.type||i.category,'Prazo':i.due,'Próxima ação':i.next,'Status':i.status}[h]||'')))];const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download=filename;a.click();URL.revokeObjectURL(a.href)}
+document.getElementById('studyExport')?.addEventListener('click',()=>exportItems(STUDY_KEY,'nix-estudos-tcc.csv',['Nome','Tipo/Categoria','Prazo','Próxima ação','Status']));
+document.getElementById('personalExport')?.addEventListener('click',()=>exportItems(PERSONAL_KEY,'nix-vida-pessoal.csv',['Nome','Tipo/Categoria','Prazo','Status']));
+const weekly=document.getElementById('weeklyFocus');if(weekly)weekly.value=localStorage.getItem(WEEKLY_KEY)||'';
+document.getElementById('saveWeeklyFocus')?.addEventListener('click',()=>{localStorage.setItem(WEEKLY_KEY,weekly.value);document.getElementById('weeklySaved').textContent='Salvo neste navegador';toast('Prioridades da semana salvas')});
+paintItems('study');paintItems('personal');
 
 render();
 nixWireAuth();
