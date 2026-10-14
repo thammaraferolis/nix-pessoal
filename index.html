@@ -284,7 +284,7 @@ body{background:#fff;color:var(--text)}
 <div class="card" style="margin-top:16px">
  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
   <div><h3 class="card-title" style="margin:0">3. Biblioteca de materiais</h3><p class="muted" style="font-size:12px;margin:5px 0 0">Histórico salvo neste navegador, sem conta e sem custo. Limpar dados do navegador pode apagar os registros.</p></div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" type="button" id="matSaveLibrary">Salvar na biblioteca</button><button class="btn" type="button" id="matExportLibrary">Exportar biblioteca (.json)</button><button class="btn" type="button" id="matImportLibrary">Importar biblioteca</button><input type="file" id="matImportFile" accept=".json,application/json" hidden></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="matOpenLibrary">Abrir biblioteca</button><button class="btn primary" type="button" id="matSaveLibrary">Salvar na biblioteca</button><button class="btn" type="button" id="matExportLibrary">Exportar biblioteca (.json)</button><button class="btn" type="button" id="matImportLibrary">Importar biblioteca</button><input type="file" id="matImportFile" accept=".json,application/json" hidden></div>
  </div>
  <div id="matLibraryList" class="grid" style="gap:10px;margin-top:14px"><div class="empty">Nenhum material salvo ainda.</div></div>
 </div>
@@ -547,6 +547,7 @@ function nixRenderMaterialLibrary(){
   card.append(info,actions);host.appendChild(card);
  })
 }
+document.getElementById('matOpenLibrary')?.addEventListener('click',()=>{showView('materials');nixRenderMaterialLibrary();const card=document.getElementById('matLibraryList')?.closest('.card');if(card){card.scrollIntoView({behavior:'smooth',block:'start'});card.style.outline='2px solid var(--gold)';setTimeout(()=>card.style.outline='',1600)}nixLibraryMessage('Biblioteca aberta. Os materiais salvos neste navegador aparecem abaixo.');});
 document.getElementById('matSaveLibrary')?.addEventListener('click',()=>nixSaveCurrentMaterial(true));
 document.getElementById('matExportLibrary')?.addEventListener('click',()=>{
  const items=nixReadMaterialLibrary();if(!items.length){toast('A biblioteca está vazia');return}
