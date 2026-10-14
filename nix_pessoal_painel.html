@@ -309,7 +309,7 @@ body{background:#fff;color:var(--text)}
 <section class="view" id="view-connections"><h2 class="section-title">Integrações e automações</h2><p class="section-desc">A estrutura está preparada para evoluir. Conexões reais exigem autorização segura e, para automação contínua, um serviço publicado.</p><div class="grid layout-two"><div class="card"><div class="card-head"><h2>Conexões planejadas</h2><span class="tag">Preparação</span></div><div class="integrations" id="connectionsList"></div></div><div class="card"><h2 style="margin-bottom:12px">Próxima etapa técnica</h2><p class="muted" style="font-size:13px">1. Publicar este site em hospedagem gratuita.<br><br>2. Configurar autenticação e armazenamento persistente.<br><br>3. Autorizar o Google Calendar e Gmail por OAuth, com permissões mínimas.<br><br>4. Criar sincronização e tratamento de erros.<br><br>5. Validar privacidade e acesso pelo celular.</p><div style="border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--gold);font-size:12px">Não insira senhas, tokens ou chaves de API nesta página. Ainda não existe sincronização automática ativa.</div></div></div></section>
 <div class="footer"><span>NIX PESSOAL · PROTÓTIPO WEB 0.2</span><span>Dados locais neste navegador · Integrações ainda não conectadas</span></div>
 </main></div><div id="toast" class="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<!-- Biblioteca do PowerPoint carregada sob demanda com alternativas de CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const NIX_SUPABASE_URL='https://yfudeqzvngueiqratgit.supabase.co';
@@ -469,7 +469,7 @@ function buildMaterial(){
 document.getElementById('materialForm')?.addEventListener('submit',e=>{e.preventDefault();buildMaterial();toast('Material gerado')});
 document.getElementById('matClear')?.addEventListener('click',()=>{document.getElementById('materialForm').reset();document.getElementById('matOutput').value='';document.getElementById('matMessage').textContent='Briefing limpo.'});
 document.getElementById('matCopy')?.addEventListener('click',async()=>{const v=document.getElementById('matOutput').value;if(!v.trim()){toast('Gere um material primeiro');return}try{await navigator.clipboard.writeText(v);toast('Conteúdo copiado')}catch(e){document.getElementById('matOutput').select();toast('Selecione e copie o texto')}})
-document.getElementById('matDownload')?.addEventListener('click',()=>{const v=document.getElementById('matOutput').value;if(!v.trim()){toast('Gere um material primeiro');return}const blob=new Blob([v],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(document.getElementById('matTopic').value.trim()||'material-nix').replace(/[^a-z0-9-_]+/gi,'-').toLowerCase()+'.txt';a.click();URL.revokeObjectURL(url);toast('Arquivo preparado para baixar')});
+document.getElementById('matDownload')?.addEventListener('click',()=>{const v=document.getElementById('matOutput').value;if(!v.trim()){toast('Gere um material primeiro');return}const blob=new Blob([v],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(document.getElementById('matTopic').value.trim()||'material-nix').replace(/[^a-z0-9-_]+/gi,'-').toLowerCase()+'.txt';a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast('Se o download não iniciar, verifique a pasta Downloads do navegador')});
 document.getElementById('matPrompt')?.addEventListener('click',()=>{const v=document.getElementById('matOutput').value;if(!v.trim()){toast('Gere um material primeiro');return}document.getElementById('matOutput').value='PROMPT PARA REFINAR O MATERIAL\n\nAtue como especialista em design instrucional, comunicação corporativa e estruturação de conteúdo. Refine o material abaixo mantendo fidelidade aos fatos fornecidos. Não invente métricas, datas, responsáveis ou resultados; sinalize lacunas como [A DEFINIR]. Organize com hierarquia clara, linguagem '+document.getElementById('matTone').value.toLowerCase()+', recomendações de layout e sugestões visuais adequadas ao público. Para apresentações, proponha uma mensagem-chave por slide e conteúdo conciso.\n\nBRIEFING\nTema: '+document.getElementById('matTopic').value+'\nPúblico: '+(document.getElementById('matAudience').value||'A definir')+'\nObjetivo: '+(document.getElementById('matObjective').value||'A definir')+'\nInformações confirmadas: '+(document.getElementById('matDetails').value||'Não informadas')+'\n\nRASCUNHO ATUAL\n'+v;document.getElementById('matMessage').textContent='Prompt de refinamento gerado. Copie para a ferramenta de IA que você já utiliza.';toast('Prompt profissional criado')});
 
 function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===name));window.scrollTo({top:0,behavior:'smooth'})}
@@ -551,11 +551,32 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSideMenu()});
 render();
 nixWireAuth();
 
+async function nixLoadPptxLibrary(){
+ if(typeof window.pptxgen!=='undefined')return true;
+ const sources=[
+  'https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js',
+  'https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js'
+ ];
+ for(const src of sources){
+  try{
+   await new Promise((resolve,reject)=>{
+    const s=document.createElement('script');s.src=src;s.async=true;
+    const timer=setTimeout(()=>{s.remove();reject(new Error('timeout'))},12000);
+    s.onload=()=>{clearTimeout(timer);resolve()};s.onerror=()=>{clearTimeout(timer);s.remove();reject(new Error('load'))};
+    document.head.appendChild(s);
+   });
+   if(typeof window.pptxgen!=='undefined')return true;
+  }catch(e){}
+ }
+ return typeof window.pptxgen!=='undefined';
+}
 document.getElementById('matPptx')?.addEventListener('click',async()=>{
  const output=document.getElementById('matOutput').value.trim();
  if(!output){toast('Gere um material primeiro');return}
- if(typeof pptxgen==='undefined'){toast('Biblioteca de PowerPoint indisponível. Conecte-se à internet e tente novamente.');return}
- const btn=document.getElementById('matPptx');const oldLabel=btn.textContent;btn.disabled=true;btn.textContent='Preparando arquivo…';
+ const btn=document.getElementById('matPptx');const oldLabel=btn.textContent;btn.disabled=true;btn.textContent='Carregando biblioteca…';
+ if(!(await nixLoadPptxLibrary())){btn.disabled=false;btn.textContent=oldLabel;toast('Não foi possível carregar a biblioteca. Confira a conexão e tente novamente.');return}
+ btn.textContent='Preparando arquivo…';
  try{
   const pptx=new pptxgen();pptx.layout='LAYOUT_WIDE';pptx.author='NIX Personal Intelligence';pptx.subject='Material gerado pelo NIX';pptx.title=document.getElementById('matTopic').value.trim()||'Material NIX';pptx.company='NIX Personal Intelligence';pptx.lang='pt-BR';
   pptx.theme={headFontFace:'Aptos Display',bodyFontFace:'Aptos',lang:'pt-BR'};
