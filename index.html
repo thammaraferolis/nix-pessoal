@@ -443,6 +443,18 @@ function persist(){localStorage.setItem(KEY,JSON.stringify(state));render();nixS
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function money(n){return (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
 function toast(msg){let t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2300)}
+
+function nixOfferDownload(blob,filename){
+ const url=URL.createObjectURL(blob),safe=String(filename||'nix-arquivo').replace(/[\\/:*?"<>|]+/g,'-');
+ let link=document.getElementById('nixDownloadFallback');
+ if(!link){link=document.createElement('a');link.id='nixDownloadFallback';link.className='btn primary';link.style.cssText='display:inline-block;margin-top:10px';link.target='_blank';link.rel='noopener';const msg=document.getElementById('matMessage');if(msg)msg.insertAdjacentElement('afterend',link)}
+ if(link.dataset.objectUrl)URL.revokeObjectURL(link.dataset.objectUrl);
+ link.dataset.objectUrl=url;link.href=url;link.download=safe;link.textContent='Toque aqui para baixar: '+safe;link.style.display='inline-block';
+ const a=document.createElement('a');a.href=url;a.download=safe;a.style.cssText='position:fixed;left:-9999px;top:0';document.body.appendChild(a);
+ try{a.click()}catch(e){}setTimeout(()=>a.remove(),1000);
+ return safe;
+}
+
 const integrations=[['G','Google Calendar','Compromissos e agenda','Planejada'],['✉','Gmail','Mensagens e prioridades','Planejada'],['D','Google Drive','Documentos e arquivos','Planejada'],['↗','Make','Fluxos de automação','Planejada']];
 function integrationHTML(x){return `<div class="integration"><div class="appicon">${x[0]}</div><div class="details"><strong>${x[1]}</strong><small>${x[2]}</small></div><span class="status">${x[3]}</span></div>`}
 function render(){
@@ -600,7 +612,7 @@ document.getElementById('matPreviewBtn')?.addEventListener('click',()=>{
 });
 
 document.getElementById('matCopy')?.addEventListener('click',async()=>{const v=document.getElementById('matOutput').value;if(!v.trim()){toast('Gere um material primeiro');return}try{await navigator.clipboard.writeText(v);toast('Conteúdo copiado')}catch(e){document.getElementById('matOutput').select();toast('Selecione e copie o texto')}})
-document.getElementById('matDownload')?.addEventListener('click',()=>{const v=document.getElementById('matOutput').value;if(!v.trim()){toast('Gere um material primeiro');return}const blob=new Blob([v],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(document.getElementById('matTopic').value.trim()||'material-nix').replace(/[^a-z0-9-_]+/gi,'-').toLowerCase()+'.txt';a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast('Se o download não iniciar, verifique a pasta Downloads do navegador')});
+document.getElementById('matDownload')?.addEventListener('click',()=>{const v=document.getElementById('matOutput').value;if(!v.trim()){toast('Gere um material primeiro');return}const name=(document.getElementById('matTopic').value.trim()||'material-nix').replace(/[^a-z0-9-_]+/gi,'-').toLowerCase()+'.txt';nixOfferDownload(new Blob([v],{type:'text/plain;charset=utf-8'}),name);document.getElementById('matMessage').textContent='Se o download automático não iniciar, use o link exibido logo abaixo.';toast('Link de download disponível na página')});
 document.getElementById('matPrompt')?.addEventListener('click',()=>{const v=document.getElementById('matOutput').value;if(!v.trim()){toast('Gere um material primeiro');return}document.getElementById('matOutput').value='PROMPT PARA REFINAR O MATERIAL\n\nAtue como especialista em design instrucional, comunicação corporativa e estruturação de conteúdo. Refine o material abaixo mantendo fidelidade aos fatos fornecidos. Não invente métricas, datas, responsáveis ou resultados; sinalize lacunas como [A DEFINIR]. Organize com hierarquia clara, linguagem '+document.getElementById('matTone').value.toLowerCase()+', recomendações de layout e sugestões visuais adequadas ao público. Para apresentações, proponha uma mensagem-chave por slide e conteúdo conciso.\n\nBRIEFING\nTema: '+document.getElementById('matTopic').value+'\nPúblico: '+(document.getElementById('matAudience').value||'A definir')+'\nObjetivo: '+(document.getElementById('matObjective').value||'A definir')+'\nInformações confirmadas: '+(document.getElementById('matDetails').value||'Não informadas')+'\n\nRASCUNHO ATUAL\n'+v;document.getElementById('matMessage').textContent='Prompt de refinamento gerado. Copie para a ferramenta de IA que você já utiliza.';toast('Prompt profissional criado')});
 
 function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===name));window.scrollTo({top:0,behavior:'smooth'})}
@@ -775,10 +787,12 @@ document.getElementById('matPptx')?.addEventListener('click',async()=>{
    slide.addText('NIX PERSONAL INTELLIGENCE',{x:0.95,y:7.08,w:5,h:0.18,fontSize:8,color:palette.muted,charSpacing:1,margin:0});
    slide.addText(String(i+2).padStart(2,'0'),{x:11.8,y:7.06,w:0.5,h:0.2,fontSize:9,color:palette.accent2,bold:true,align:'right',margin:0});
   });
-  await pptx.writeFile({fileName:(title||'material-nix').replace(/[^a-z0-9-_]+/gi,'-').toLowerCase()+'.pptx'});
-  document.getElementById('matMessage').textContent='PowerPoint criado com '+(groups.length+1)+' slides. Abra o arquivo e revise quebras de linha, conteúdo e dados antes de apresentar.';
-  toast('PowerPoint editável gerado');
- }catch(err){console.error(err);document.getElementById('matMessage').textContent='Falha na exportação. Confira a conexão e tente novamente.';toast('Não foi possível gerar o PowerPoint.')}
+  const pptxName=(title||'material-nix').replace(/[^a-z0-9-_]+/gi,'-').toLowerCase()+'.pptx';
+  const pptxBlob=await pptx.write({outputType:'blob'});
+  nixOfferDownload(pptxBlob,pptxName);
+  document.getElementById('matMessage').textContent='PowerPoint preparado com '+(groups.length+1)+' slides. Se o download automático não iniciar, use o link exibido abaixo.';
+  toast('Link do PowerPoint disponível na página');
+ }catch(err){console.error(err);document.getElementById('matMessage').textContent='Falha ao gerar o arquivo: '+(err?.message||'erro desconhecido')+'. Confira a conexão e tente novamente.';toast('Falha na exportação do PowerPoint')}
  finally{btn.disabled=false;btn.textContent=oldLabel}
 });
 </script>
