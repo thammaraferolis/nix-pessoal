@@ -81,6 +81,7 @@ body{background:#fff;color:var(--text)}
 <aside class="sidebar">
   <div class="brand"><div class="logo">N</div><div><b>NIX PESSOAL</b><small>PERSONAL INTELLIGENCE</small></div></div>
   <div><div class="nav-label">ESPAÇO PESSOAL</div><nav class="nav" id="nav">
+    <button data-view="routine"><span class="ico">◷</span> Minha rotina</button>
     <button class="active" data-view="overview"><span class="ico">◈</span> Visão geral</button>
     <button data-view="tasks"><span class="ico">☷</span> Tarefas</button>
     <button data-view="goals"><span class="ico">◎</span> Objetivos</button>
@@ -116,6 +117,56 @@ body{background:#fff;color:var(--text)}
 <button class="module-tile" data-goto="notes"><span class="module-icon">✎</span><span class="module-copy"><strong>Anotações</strong><small>Guarde ideias e lembretes importantes.</small></span><span class="module-arrow">›</span></button>
 <button class="module-tile" data-goto="connections"><span class="module-icon">⌘</span><span class="module-copy"><strong>Automações</strong><small>Prepare as conexões do seu assistente.</small></span><span class="module-arrow">›</span></button>
 </div></section>
+<section class="view" id="view-routine">
+  <h2 class="section-title">Minha rotina</h2>
+  <p class="section-desc">Uma visão integrada de trabalho, projetos, estudos e vida pessoal. Os horários abaixo refletem sua jornada habitual e podem ser ajustados.</p>
+  <div class="grid stats" style="margin-bottom:18px">
+    <div class="card"><div class="stat-top">Jornada de trabalho <span class="stat-icon">◷</span></div><div class="stat-value" style="font-size:25px">09:00–18:48</div><div class="stat-foot">Segunda a sexta • 44h semanais</div></div>
+    <div class="card"><div class="stat-top">Pausa de almoço <span class="stat-icon">☀</span></div><div class="stat-value" style="font-size:25px">12:30–13:30</div><div class="stat-foot">Bloco habitual de descanso</div></div>
+    <div class="card"><div class="stat-top">Foco principal <span class="stat-icon">⌘</span></div><div class="stat-value" style="font-size:25px">Projetos & PMO</div><div class="stat-foot">Implantação, governança e melhoria contínua</div></div>
+    <div class="card"><div class="stat-top">Revisão semanal <span class="stat-icon">✓</span></div><div class="stat-value" style="font-size:25px">Sexta-feira</div><div class="stat-foot">Fechamento, prioridades e conteúdos úteis</div></div>
+  </div>
+  <div class="grid layout-two">
+    <div class="card">
+      <div class="card-head"><h2>Roteiro de um dia útil</h2><span class="status">Editável por checklist</span></div>
+      <p class="muted" style="font-size:12px">Marque cada bloco conforme avançar. O checklist reinicia por dia neste navegador.</p>
+      <div class="routine-list">
+        <label class="task"><input type="checkbox" data-routine="start"><span class="task-title"><strong>09:00</strong> — Planejar o dia e revisar agenda</span></label>
+        <label class="task"><input type="checkbox" data-routine="pmo"><span class="task-title"><strong>09:15–12:30</strong> — Projetos, pendências, riscos e alinhamentos PMO</span></label>
+        <label class="task"><input type="checkbox" data-routine="lunch"><span class="task-title"><strong>12:30–13:30</strong> — Almoço e pausa</span></label>
+        <label class="task"><input type="checkbox" data-routine="execution"><span class="task-title"><strong>13:30–16:45</strong> — Execução, follow-ups e documentação</span></label>
+        <label class="task"><input type="checkbox" data-routine="daily"><span class="task-title"><strong>16:50</strong> — Daily de Projetos & Produtos</span></label>
+        <label class="task"><input type="checkbox" data-routine="close"><span class="task-title"><strong>17:10–18:48</strong> — Atualizar status, próximos passos e preparar amanhã</span></label>
+        <label class="task"><input type="checkbox" data-routine="study"><span class="task-title"><strong>Fora do expediente</strong> — Bloco de estudo/TCC, conforme disponibilidade</span></label>
+      </div>
+      <div class="progress-row"><span>Progresso da rotina</span><strong id="routinePercent">0%</strong></div><div class="progress"><span id="routineProgress" style="width:0%"></span></div>
+      <div class="toolbar" style="margin-top:14px"><button class="btn" id="routineReset">Reiniciar checklist de hoje</button></div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-head"><h2>Frentes que precisam de acompanhamento</h2><button class="btn ghost" data-goto="tasks">Abrir tarefas →</button></div>
+        <div class="task-list">
+          <div class="task"><span class="module-icon" style="width:34px;height:34px;flex-basis:34px;font-size:15px">▦</span><span class="task-title"><strong>Implantações e operação</strong><small style="display:block;color:var(--muted)">Kick-off, briefing, áreas envolvidas, facilities, compliance, sistemas e Go Live</small></span></div>
+          <div class="task"><span class="module-icon" style="width:34px;height:34px;flex-basis:34px;font-size:15px">⌘</span><span class="task-title"><strong>Governança PMO</strong><small style="display:block;color:var(--muted)">Fase, status, riscos, dependências, próximo marco e atualização do Master</small></span></div>
+          <div class="task"><span class="module-icon" style="width:34px;height:34px;flex-basis:34px;font-size:15px">✦</span><span class="task-title"><strong>Melhoria contínua e produtos</strong><small style="display:block;color:var(--muted)">Mapeamento de processos, testes, homologação e documentação</small></span></div>
+          <div class="task"><span class="module-icon" style="width:34px;height:34px;flex-basis:34px;font-size:15px">▤</span><span class="task-title"><strong>Conteúdo e desenvolvimento</strong><small style="display:block;color:var(--muted)">Materiais, apresentações, treinamento e andamento do TCC</small></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Rotinas semanais</h2><span class="status">Sugestões</span></div>
+        <div class="task-list">
+          <label class="task"><input type="checkbox" data-routine="weeklyReview"><span class="task-title">Revisar projetos, prazos e riscos da semana</span></label>
+          <label class="task"><input type="checkbox" data-routine="weeklyStudy"><span class="task-title">Reservar tempo para estudo/TCC</span></label>
+          <label class="task"><input type="checkbox" data-routine="weeklyMaterials"><span class="task-title">Revisar materiais de treinamento e conteúdos corporativos</span></label>
+          <label class="task"><input type="checkbox" data-routine="weeklyAutomation"><span class="task-title">Conferir automações NIX, Make e alertas do Telegram</span></label>
+          <label class="task"><input type="checkbox" data-routine="weeklyPlan"><span class="task-title">Definir as três prioridades da próxima semana</span></label>
+        </div>
+        <p class="muted" style="font-size:11px;margin:12px 0 0">A revisão de conteúdos de LGPD, segurança da informação, uso seguro de IA e continuidade é uma rotina desejada, não um envio automático já ativado aqui.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="view active" id="view-overview">
 <div class="grid stats">
   <div class="card"><div class="stat-top">Tarefas pendentes <span class="stat-icon">☷</span></div><div class="stat-value" id="pendingCount">0</div><div class="stat-foot">Atividades que pedem atenção</div></div>
@@ -267,6 +318,16 @@ function dateKey(){let d=new Date();return `${d.getFullYear()}-${String(d.getMon
 if(state.habits.date!==dateKey())state.habits={date:dateKey(),items:[false,false,false,false]};
 const now=new Date();document.getElementById('today').textContent=new Intl.DateTimeFormat('pt-BR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}).format(now);
 const hour=now.getHours();document.getElementById('greeting').textContent=hour<12?'Bom dia. Vamos começar?':hour<18?'Boa tarde. Vamos avançar?':'Boa noite. Hora de organizar.';
+
+const ROUTINE_KEY='nix-routine-checks';
+function routineDayKey(){return new Date().toLocaleDateString('en-CA')}
+function readRoutineChecks(){try{const x=JSON.parse(localStorage.getItem(ROUTINE_KEY)||'{}');return x.date===routineDayKey()?x.checks||{}:{}}catch{return {}}}
+function paintRoutineChecks(){const checks=readRoutineChecks();const els=[...document.querySelectorAll('[data-routine]')];els.forEach(el=>el.checked=!!checks[el.dataset.routine]);const total=els.length,done=els.filter(el=>el.checked).length,pct=total?Math.round(done/total*100):0;const p=document.getElementById('routinePercent'),bar=document.getElementById('routineProgress');if(p)p.textContent=pct+'%';if(bar)bar.style.width=pct+'%'}
+function saveRoutineChecks(){const checks={};document.querySelectorAll('[data-routine]').forEach(el=>checks[el.dataset.routine]=el.checked);localStorage.setItem(ROUTINE_KEY,JSON.stringify({date:routineDayKey(),checks}));paintRoutineChecks()}
+document.querySelectorAll('[data-routine]').forEach(el=>el.addEventListener('change',saveRoutineChecks));
+document.getElementById('routineReset')?.addEventListener('click',()=>{localStorage.removeItem(ROUTINE_KEY);paintRoutineChecks();toast('Checklist reiniciado')});
+paintRoutineChecks();
+
 render();
 nixWireAuth();
 </script>
