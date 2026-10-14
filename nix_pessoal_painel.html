@@ -498,8 +498,27 @@ function buildMaterial(){
 document.getElementById('materialForm')?.addEventListener('submit',e=>{e.preventDefault();buildMaterial();toast('Material gerado')});
 
 const NIX_MATERIAL_LIBRARY_KEY='nix-material-library-v1';
-function nixReadMaterialLibrary(){try{const x=JSON.parse(localStorage.getItem(NIX_MATERIAL_LIBRARY_KEY)||'[]');return Array.isArray(x)?x.filter(i=>i&&i.id&&typeof i.content==='string'):[]}catch(e){return []}}
-function nixWriteMaterialLibrary(items){try{localStorage.setItem(NIX_MATERIAL_LIBRARY_KEY,JSON.stringify(items.slice(0,50)));return true}catch(e){toast('Armazenamento cheio ou indisponível. Exporte a biblioteca para guardar seus materiais.');return false}}
+const NIX_MATERIAL_LIBRARY_SESSION_KEY='nix-material-library-session-v1';
+function nixLibraryMessage(message,isError=false){
+ const el=document.getElementById('matMessage');
+ if(el){el.textContent=message;el.style.color=isError?'#b42318':''}
+}
+function nixReadMaterialLibrary(){
+ const clean=value=>{const x=JSON.parse(value||'[]');return Array.isArray(x)?x.filter(i=>i&&i.id&&typeof i.content==='string'):[]};
+ try{
+  const primary=localStorage.getItem(NIX_MATERIAL_LIBRARY_KEY);
+  if(primary!==null)return clean(primary);
+ }catch(e){console.warn('NIX library localStorage unavailable',e)}
+ try{return clean(sessionStorage.getItem(NIX_MATERIAL_LIBRARY_SESSION_KEY))}catch(e){console.warn('NIX library sessionStorage unavailable',e)}
+ return [];
+}
+function nixWriteMaterialLibrary(items){
+ const safe=items.slice(0,50),serialized=JSON.stringify(safe);
+ try{localStorage.setItem(NIX_MATERIAL_LIBRARY_KEY,serialized);nixLibraryMessage('Biblioteca salva neste navegador. Para manter uma cópia, use “Exportar biblioteca”.');return true}
+ catch(e){console.warn('NIX library localStorage write failed',e)}
+ try{sessionStorage.setItem(NIX_MATERIAL_LIBRARY_SESSION_KEY,serialized);nixLibraryMessage('A biblioteca não pôde ser salva permanentemente neste navegador. Os materiais ficarão disponíveis apenas nesta sessão; exporte um backup JSON.',true);return true}
+ catch(e){console.error('NIX library storage unavailable',e);nixLibraryMessage('Não foi possível salvar: o navegador bloqueou o armazenamento. Libere espaço e permita dados do site; depois tente novamente.',true);return false}
+}
 function nixCurrentMaterial(){return {id:'mat-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),title:document.getElementById('matTopic').value.trim()||'Material sem título',type:document.getElementById('matType').value,audience:document.getElementById('matAudience').value,objective:document.getElementById('matObjective').value,tone:document.getElementById('matTone').value,details:document.getElementById('matDetails').value,content:document.getElementById('matOutput').value,design:document.getElementById('matDesign')?.value||'executivo',updatedAt:new Date().toISOString()}}
 function nixSaveCurrentMaterial(showToast=true){
  const content=document.getElementById('matOutput')?.value.trim();if(!content){toast('Gere ou escreva um material antes de salvar');return}
@@ -513,7 +532,7 @@ function nixSaveCurrentMaterial(showToast=true){
 function nixRenderMaterialLibrary(){
  const host=document.getElementById('matLibraryList');if(!host)return;host.replaceChildren();
  const items=nixReadMaterialLibrary();
- if(!items.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='Nenhum material salvo ainda. Gere um conteúdo e toque em “Salvar na biblioteca”.';host.appendChild(empty);return}
+ if(!items.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='Nenhum material salvo neste navegador. Gere um conteúdo, toque em “Salvar na biblioteca” e confira a mensagem de confirmação.';host.appendChild(empty);return}
  items.forEach(item=>{
   const card=document.createElement('div');card.style.cssText='border:1px solid var(--line);border-radius:12px;padding:13px;display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap';
   const info=document.createElement('div');info.style.cssText='min-width:0;flex:1';
