@@ -363,8 +363,14 @@ async function nixLoadPersonalModules(){
   {table:'nix_study_items',key:'nix-study-v1',map:r=>({id:r.id,name:r.name,type:r.item_type,due:r.due_date||'',next:r.next_action,status:r.status,created:r.created_at})},
   {table:'nix_personal_items',key:'nix-personal-v1',map:r=>({id:r.id,name:r.name,category:r.category,due:r.due_date||'',status:r.status,created:r.created_at})}
  ];
- for(const spec of specs){const {data,error}=await nixCloud.from(spec.table).select('*').order('created_at',{ascending:false});if(error)throw error;if(data?.length)localStorage.setItem(spec.key,JSON.stringify(data.map(spec.map)))}
- const {data:focus,error}=await nixCloud.from('nix_weekly_focus').select('content').maybeSingle();if(error)throw error;if(focus)localStorage.setItem('nix-weekly-focus-v1',focus.content);
+ for(const spec of specs){
+  const {data,error}=await nixCloud.from(spec.table).select('*').order('created_at',{ascending:false});if(error)throw error;
+  if(data?.length){localStorage.setItem(spec.key,JSON.stringify(data.map(spec.map)))}
+  else if(readItems(spec.key).length){await nixSaveModuleRows(spec.table,spec.key,readItems(spec.key),r=>spec.table==='nix_projects'?({name:r.name,client:r.client||'',phase:r.phase||'Triagem',status:r.status||'A fazer',next_step:r.next||''}):spec.table==='nix_study_items'?({name:r.name,item_type:r.type||'Disciplina',due_date:r.due||null,next_action:r.next||'',status:r.status||'A fazer'}):({name:r.name,category:r.category||'Organização',due_date:r.due||null,status:r.status||'A fazer'}))}
+ }
+ const {data:focus,error}=await nixCloud.from('nix_weekly_focus').select('content').maybeSingle();if(error)throw error;
+ if(focus)localStorage.setItem('nix-weekly-focus-v1',focus.content);
+ else if(localStorage.getItem('nix-weekly-focus-v1')){const {error:fe}=await nixCloud.from('nix_weekly_focus').upsert({user_id:nixCloudUser.id,content:localStorage.getItem('nix-weekly-focus-v1')});if(fe)throw fe}
  paintItems('study');paintItems('personal');paintProjects();
  const wf=document.getElementById('weeklyFocus');if(wf)wf.value=localStorage.getItem('nix-weekly-focus-v1')||'';
 }
@@ -481,7 +487,7 @@ function paintItems(kind){
   const row=document.createElement('div');row.className='list-item';
   const done=item.status==='Concluído';
   row.innerHTML='<div class="list-main"><strong>'+escapeHTML(item.name)+'</strong><small>'+escapeHTML(item.type||item.category||'')+(item.due?' · Prazo: '+escapeHTML(item.due):'')+(item.next?' · Próxima ação: '+escapeHTML(item.next):'')+'</small></div><div class="toolbar"><select class="field compact" aria-label="Status"><option '+(item.status==='A fazer'?'selected':'')+'>A fazer</option><option '+(item.status==='Em andamento'?'selected':'')+'>Em andamento</option><option '+(done?'selected':'')+'>Concluído</option></select><button class="btn danger" type="button">Excluir</button></div>';
-  const sel=row.querySelector('select');sel.addEventListener('change',()=>{const all=readItems(key),x=all.find(i=>i.id===item.id);if(x)x.status=sel.value;writeItems(key,all);paintItems(kind)});
+  const sel=row.querySelector('select');sel.addEventListener('change',()=>{const all=readItems(key),x=all.find(i=>i.id===item.id);if(x)x.status=sel.value;writeItems(key,all);paintItems(kind);nixSyncPersonalModules()});
   row.querySelector('button').addEventListener('click',()=>{if(confirm('Excluir este item?')){writeItems(key,readItems(key).filter(i=>i.id!==item.id));paintItems(kind);nixSyncPersonalModules()}});
   list.appendChild(row);
  });
