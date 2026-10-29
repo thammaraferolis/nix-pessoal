@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#06152E">
+<title>NIX Meeting | Central de Inteligência</title>
+<style>
+:root{color-scheme:dark;--bg:#06152e;--panel:#0b1f3a;--panel2:#12305a;--line:#1d3b5c;--text:#f4f8ff;--muted:#a9b9cf;--aqua:#00cdb8;--aqua-soft:#073d49;--warn:#ffcf70;--danger:#ff8c8c}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 90% -10%,#12305a 0,transparent 45%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}.wrap{max-width:1180px;margin:auto;padding:22px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px}.brand{display:flex;align-items:center;gap:12px}.orb{width:46px;height:46px;border:1px solid #00cdb880;border-radius:50%;display:grid;place-items:center;position:relative;color:var(--aqua);box-shadow:0 0 26px #00cdb826}.orb:before,.orb:after{content:"";position:absolute;border:1px solid #00cdb84d;border-radius:50%;inset:5px;animation:spin 12s linear infinite}.orb:after{inset:-4px;border-style:dashed;animation-direction:reverse;animation-duration:20s}@keyframes spin{to{transform:rotate(360deg)}}h1{font-size:clamp(25px,4vw,36px);margin:0;letter-spacing:-.04em}.eyebrow{color:var(--aqua);text-transform:uppercase;letter-spacing:.16em;font-size:10px;font-weight:800}.muted{color:var(--muted)}.pill{border:1px solid var(--line);background:#0b1f3a;border-radius:99px;padding:7px 11px;font-size:11px;color:var(--muted)}.hero{display:grid;grid-template-columns:1.25fr .75fr;gap:16px;margin-bottom:16px}.panel{background:linear-gradient(145deg,#0d2544,#091a31);border:1px solid var(--line);border-radius:18px;padding:20px;min-width:0;box-shadow:0 14px 35px #0002}.panel h2{font-size:16px;margin:0 0 12px}.panel p{margin:0 0 12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 13px;border-radius:10px;font-size:12px;font-weight:700}.btn.primary{background:var(--aqua);border-color:var(--aqua);color:#04192a}.btn.ghost{background:transparent}.btn.warn{border-color:#876d3d;color:var(--warn)}.btn:disabled{opacity:.45;cursor:not-allowed}.btn:hover{border-color:var(--aqua)}.status{font-size:12px;color:var(--aqua);margin-top:12px;min-height:18px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field-group{margin-bottom:12px}.field-group label{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}.field{width:100%;background:#06152e;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 12px;outline:none}.field:focus{border-color:var(--aqua);box-shadow:0 0 0 3px #00cdb81a}.field::placeholder{color:#7186a4}textarea.field{resize:vertical;min-height:170px;line-height:1.55}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}.stat{padding:14px;border:1px solid var(--line);border-radius:13px;background:#0b1f3a}.stat b{display:block;font-size:22px}.stat small{color:var(--muted);font-size:11px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}.hint{font-size:11px;color:var(--muted);line-height:1.5}.section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}.item{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px;background:#07182e}.item strong{display:block;font-size:13px}.item small{color:var(--muted);font-size:11px}.item button{float:right}.empty{padding:18px;text-align:center;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:12px}.list{display:grid;gap:8px}.footer{margin:22px 0;color:#7186a4;font-size:10px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.note{border-left:3px solid var(--warn);padding:9px 12px;background:#302b1e66;color:#e8d9b7;font-size:11px;border-radius:0 8px 8px 0}.hidden{display:none!important}.back{color:var(--aqua);text-decoration:none;font-size:12px}@media(max-width:760px){.wrap{padding:14px}.hero,.layout{grid-template-columns:1fr}.fields{grid-template-columns:1fr}.top{align-items:flex-start}.pill{display:none}.panel{padding:16px}.btn{min-height:42px}.actions .btn{flex:1}.stats{gap:7px}.stat{padding:11px}.stat b{font-size:19px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="orb" aria-hidden="true">N</div><div><div class="eyebrow">Central de Inteligência</div><h1>NIX Meeting</h1><div class="muted" style="font-size:12px">Seu assistente de reuniões</div></div></div>
+    <div class="actions"><a class="back" href="./index.html">← Voltar ao NIX</a><span class="pill">MVP · R$ 0/mês</span></div>
+  </header>
+
+  <section class="hero">
+    <div class="panel">
+      <h2>🎙️ Capturar reunião</h2>
+      <p class="muted" style="font-size:12px">Use no Chrome do Android ou computador. A transcrição depende do suporte de reconhecimento de voz do navegador e pode exigir internet.</p>
+      <div class="fields">
+        <div class="field-group"><label for="meetingTitle">Nome da reunião</label><input id="meetingTitle" class="field" placeholder="Ex.: Alinhamento Projeto Unifique"></div>
+        <div class="field-group"><label for="meetingProject">Projeto / área</label><input id="meetingProject" class="field" placeholder="Ex.: Unifique, PMO, pessoal"></div>
+      </div>
+      <div class="fields">
+        <div class="field-group"><label for="meetingDate">Data</label><input id="meetingDate" class="field" type="date"></div>
+        <div class="field-group"><label for="meetingParticipants">Participantes (opcional)</label><input id="meetingParticipants" class="field" placeholder="Nomes separados por vírgula"></div>
+      </div>
+      <div class="actions">
+        <button id="startBtn" class="btn primary">● Iniciar transcrição</button>
+        <button id="pauseBtn" class="btn" disabled>Ⅱ Pausar</button>
+        <button id="stopBtn" class="btn warn" disabled>■ Encerrar</button>
+        <button id="clearBtn" class="btn ghost">Limpar texto</button>
+      </div>
+      <div id="captureStatus" class="status" role="status">Pronto para iniciar. Permita o acesso ao microfone quando solicitado.</div>
+    </div>
+    <div class="panel">
+      <h2>Como funciona</h2>
+      <div class="list">
+        <div class="item"><strong>01 · Captura</strong><small>O navegador reconhece a fala e adiciona o texto à transcrição.</small></div>
+        <div class="item"><strong>02 · Análise com Claude</strong><small>Copie o prompt gerado, envie ao Claude usando sua conta Pro e cole a resposta estruturada aqui.</small></div>
+        <div class="item"><strong>03 · Registro no NIX</strong><small>Salve atas, decisões e tarefas neste navegador; exporte um Markdown para arquivar ou sincronizar depois.</small></div>
+      </div>
+      <div class="note">Privacidade: avise os participantes e siga as regras da sua organização antes de gravar. A transcrição do navegador pode ser processada por um serviço online. Esta primeira versão não envia dados ao Supabase nem ao Make.</div>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><b id="wordCount">0</b><small>Palavras transcritas</small></div>
+    <div class="stat"><b id="meetingCount">0</b><small>Reuniões salvas neste navegador</small></div>
+    <div class="stat"><b id="taskCount">0</b><small>Tarefas extraídas</small></div>
+  </section>
+
+  <section class="panel" style="margin-bottom:16px">
+    <div class="section-head"><h2 style="margin:0">📝 Transcrição</h2><div class="actions"><button id="copyTranscriptBtn" class="btn">Copiar texto</button><button id="promptBtn" class="btn primary">Preparar análise no Claude</button></div></div>
+    <textarea id="transcript" class="field" placeholder="A transcrição aparecerá aqui. Você também pode colar uma transcrição pronta..."></textarea>
+    <div class="hint" style="margin-top:8px">Dica: você pode colar aqui a transcrição de outra ferramenta. O texto é salvo localmente no seu navegador, não em uma conta compartilhada.</div>
+  </section>
+
+  <section class="panel" style="margin-bottom:16px">
+    <div class="section-head"><h2 style="margin:0">🧠 Análise do Claude</h2><span class="pill">Claude Pro · fluxo manual</span></div>
+    <p class="hint">Clique em “Preparar análise no Claude”, copie o prompt, abra o Claude, envie o texto e peça a resposta em JSON. Depois cole aqui a resposta completa.</p>
+    <div class="actions" style="margin-bottom:12px"><button id="openClaudeBtn" class="btn">Abrir Claude</button><button id="copyAnalysisPromptBtn" class="btn">Copiar prompt novamente</button><button id="parseBtn" class="btn primary">Processar resposta</button></div>
+    <div class="field-group"><label for="claudeOutput">Resposta do Claude (JSON ou texto estruturado)</label><textarea id="claudeOutput" class="field" style="min-height:140px" placeholder='Cole a resposta do Claude aqui...'></textarea></div>
+    <div id="analysisStatus" class="status" role="status"></div>
+  </section>
+
+  <section class="layout">
+    <div class="panel">
+      <div class="section-head"><h2 style="margin:0">📌 Ata e decisões</h2><span id="decisionBadge" class="pill">0 decisões</span></div>
+      <div class="field-group"><label for="minutesSummary">Resumo executivo</label><textarea id="minutesSummary" class="field" style="min-height:100px" placeholder="Resumo objetivo da reunião"></textarea></div>
+      <div class="field-group"><label for="minutesBody">Ata / principais pontos</label><textarea id="minutesBody" class="field" style="min-height:140px" placeholder="Contexto, pautas, alinhamentos e encaminhamentos"></textarea></div>
+      <div class="field-group"><label for="decisionInput">Adicionar decisão manualmente</label><div class="actions"><input id="decisionInput" class="field" placeholder="Decisão acordada" style="flex:1"><button id="addDecisionBtn" class="btn">Adicionar</button></div></div>
+      <div id="decisionsList" class="list"></div>
+    </div>
+    <div class="panel">
+      <div class="section-head"><h2 style="margin:0">☑️ Tarefas e próximos passos</h2><span id="taskBadge" class="pill">0 tarefas</span></div>
+      <div class="field-group"><label for="taskInput">Nova tarefa</label><input id="taskInput" class="field" placeholder="Ex.: Validar acesso com o cliente"></div>
+      <div class="fields">
+        <div class="field-group"><label for="taskOwner">Responsável</label><input id="taskOwner" class="field" placeholder="Nome"></div>
+        <div class="field-group"><label for="taskDue">Prazo</label><input id="taskDue" class="field" type="date"></div>
+      </div>
+      <button id="addTaskBtn" class="btn">+ Adicionar tarefa</button>
+      <div id="tasksList" class="list" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <section class="panel" style="margin-top:16px">
+    <div class="section-head"><h2 style="margin:0">💾 Salvar e exportar</h2><span class="pill">Armazenamento local</span></div>
+    <p class="hint">Salve esta reunião no navegador ou exporte a ata em Markdown. Para acessar em outro aparelho, exporte o arquivo e importe-o lá. A sincronização entre dispositivos será uma etapa posterior, após validar a autenticação do NIX.</p>
+    <div class="actions"><button id="saveBtn" class="btn primary">Salvar reunião</button><button id="exportBtn" class="btn">Exportar ata .md</button><button id="exportJsonBtn" class="btn">Exportar dados .json</button><button id="importBtn" class="btn">Importar reunião .json</button><input id="importFile" type="file" accept=".json,application/json" class="hidden"></div>
+    <div id="saveStatus" class="status" role="status"></div>
+    <div id="savedList" class="list" style="margin-top:14px"></div>
+  </section>
+  <footer class="footer"><span>NIX Meeting · primeira versão funcional</span><span>Sem APIs pagas · sem Vercel · sem alterações no Make</span></footer>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const STORAGE_KEY='nix_meeting_v1';
+let saved=readSaved(),decisions=[],tasks=[],recognition=null,isRecording=false,isPaused=false,lastPrompt='',audioRecorder=null,audioChunks=[];
+const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+$('meetingDate').value=new Date().toLocaleDateString('en-CA');
+function readSaved(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch(e){return []}}
+function persistSaved(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(saved));return true}catch(e){$('saveStatus').textContent='Não foi possível salvar no navegador. Exporte o arquivo JSON.';return false}}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function transcript(){return $('transcript').value.trim()}
+function words(){const t=transcript();return t?t.split(/\s+/).length:0}
+function meta(){return {title:$('meetingTitle').value.trim()||'Reunião sem título',project:$('meetingProject').value.trim(),date:$('meetingDate').value||new Date().toISOString().slice(0,10),participants:$('meetingParticipants').value.trim()}}
+function current(){return {...meta(),transcript:transcript(),summary:$('minutesSummary').value.trim(),minutes:$('minutesBody').value.trim(),decisions:[...decisions],tasks:[...tasks],claudeOutput:$('claudeOutput').value.trim(),updatedAt:new Date().toISOString()}}
+function updateStats(){$('wordCount').textContent=words();$('meetingCount').textContent=saved.length;$('taskCount').textContent=tasks.length;$('decisionBadge').textContent=decisions.length+' decisões';$('taskBadge').textContent=tasks.length+' tarefas'}
+function status(id,msg){$(id).textContent=msg}
+function renderDecisions(){$('decisionsList').innerHTML=decisions.length?decisions.map((d,i)=>'<div class="item"><button class="btn ghost" data-del-decision="'+i+'" aria-label="Excluir decisão">×</button><strong>'+esc(typeof d==='string'?d:d.text)+'</strong>'+(d.owner?'<small>Responsável: '+esc(d.owner)+'</small>':'')+'</div>').join(''):'<div class="empty">As decisões extraídas aparecerão aqui.</div>';updateStats()}
+function renderTasks(){$('tasksList').innerHTML=tasks.length?tasks.map((t,i)=>'<div class="item"><button class="btn ghost" data-del-task="'+i+'" aria-label="Excluir tarefa">×</button><strong>'+esc(typeof t==='string'?t:t.title)+'</strong><small>'+[t.owner?'Responsável: '+t.owner:'',t.dueDate?'Prazo: '+t.dueDate:'',t.status?'Status: '+t.status:''].filter(Boolean).map(esc).join(' · ')+'</small></div>').join(''):'<div class="empty">Nenhuma tarefa adicionada ainda.</div>';updateStats()}
+function renderSaved(){$('savedList').innerHTML=saved.length?'<h2 style="font-size:13px;margin:4px 0">Reuniões salvas</h2>'+saved.slice().reverse().map((m,i)=>'<div class="item"><button class="btn" data-load="'+esc(m.id)+'">Abrir</button><strong>'+esc(m.title||'Reunião')+'</strong><small>'+esc(m.date||'')+' · '+esc(m.project||'Sem projeto')+' · '+((m.tasks||[]).length)+' tarefas</small></div>').join(''):'<div class="empty">Suas reuniões salvas neste navegador aparecerão aqui.</div>';updateStats()}
+function applyMeeting(m){$('meetingTitle').value=m.title||'';$('meetingProject').value=m.project||'';$('meetingDate').value=m.date||'';$('meetingParticipants').value=m.participants||'';$('transcript').value=m.transcript||'';$('minutesSummary').value=m.summary||'';$('minutesBody').value=m.minutes||'';$('claudeOutput').value=m.claudeOutput||'';decisions=Array.isArray(m.decisions)?m.decisions:[];tasks=Array.isArray(m.tasks)?m.tasks:[];renderDecisions();renderTasks();updateStats();status('saveStatus','Reunião carregada neste navegador.')}
+function promptText(){const m=meta();return 'Você é o assistente de atas do NIX Meeting. Produza uma ata objetiva em português do Brasil, sem inventar informações. Se não houver responsável ou prazo explícito, use null. Separe fatos confirmados de dúvidas. Responda SOMENTE com JSON válido, sem markdown, no formato: {"summary":"resumo executivo","minutes":"ata estruturada em texto","decisions":[{"text":"decisão","owner":null}],"tasks":[{"title":"ação concreta","owner":null,"dueDate":null,"status":"Pendente"}],"risks":["risco ou bloqueio"],"openQuestions":["questão em aberto"]}. Use as pautas e anotações sem atribuir falas a pessoas sem evidência.\n\nMETADADOS\nTítulo: '+m.title+'\nProjeto/área: '+(m.project||'Não informado')+'\nData: '+m.date+'\nParticipantes: '+(m.participants||'Não informados')+'\n\nTRANSCRIÇÃO COMPLETA\n'+(transcript()||'[Nenhuma transcrição fornecida]')+'\n\nANOTAÇÕES MANUAIS\n'+($('minutesBody').value.trim()||'[Nenhuma]')}
+async function copyText(text){try{await navigator.clipboard.writeText(text);return true}catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();return ok}}
+function startCapture(){if(!SpeechRecognition){status('captureStatus','Este navegador não oferece transcrição ao vivo. Use Chrome atualizado ou cole uma transcrição pronta.');return}try{recognition=new SpeechRecognition();recognition.lang='pt-BR';recognition.continuous=true;recognition.interimResults=true;recognition.onresult=e=>{let finalText='';let interim='';for(let i=e.resultIndex;i<e.results.length;i++){const chunk=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=chunk+' ';else interim+=chunk}if(finalText){const old=$('transcript').value.trim();$('transcript').value=(old?old+' ':'')+finalText.trim();$('transcript').dataset.interim='';updateStats()}$('transcript').dataset.interim=interim};recognition.onerror=e=>{status('captureStatus','Transcrição: '+(e.error==='not-allowed'?'permissão de microfone negada':e.error)+'. Confira permissões e tente novamente.');if(e.error==='not-allowed')stopCapture(false)};recognition.onend=()=>{if(isRecording&&!isPaused){try{recognition.start()}catch(e){}}};recognition.start();isRecording=true;isPaused=false;$('startBtn').disabled=true;$('pauseBtn').disabled=false;$('stopBtn').disabled=false;status('captureStatus','Transcrição ativa. Fale normalmente e acompanhe o texto no campo abaixo.')}catch(e){status('captureStatus','Não foi possível iniciar: '+e.message)}}
+function pauseCapture(){if(!recognition)return;if(isPaused){isPaused=false;try{recognition.start()}catch(e){}$('pauseBtn').textContent='Ⅱ Pausar';status('captureStatus','Transcrição retomada.')}else{isPaused=true;try{recognition.stop()}catch(e){}$('pauseBtn').textContent='▶ Retomar';status('captureStatus','Transcrição pausada.')}}
+function stopCapture(show=true){isRecording=false;isPaused=false;if(recognition){recognition.onend=null;try{recognition.stop()}catch(e){}}recognition=null;$('startBtn').disabled=false;$('pauseBtn').disabled=true;$('stopBtn').disabled=true;$('pauseBtn').textContent='Ⅱ Pausar';if(show)status('captureStatus','Captura encerrada. Revise o texto antes de gerar a ata.')}
+$('startBtn').addEventListener('click',startCapture);$('pauseBtn').addEventListener('click',pauseCapture);$('stopBtn').addEventListener('click',()=>stopCapture());$('clearBtn').addEventListener('click',()=>{if(confirm('Limpar a transcrição atual?')){$('transcript').value='';updateStats();status('captureStatus','Transcrição limpa.')}});$('transcript').addEventListener('input',updateStats);
+$('copyTranscriptBtn').addEventListener('click',async()=>status('captureStatus',await copyText(transcript())?'Transcrição copiada.':'Não foi possível copiar automaticamente.'));
+$('promptBtn').addEventListener('click',async()=>{lastPrompt=promptText();const ok=await copyText(lastPrompt);status('analysisStatus',ok?'Prompt copiado. Abra o Claude, cole o prompt e envie a resposta de volta nesta página.':'Prompt preparado. Selecione e copie o texto abaixo.');$('claudeOutput').focus();if(!ok)alert(lastPrompt)});
+$('copyAnalysisPromptBtn').addEventListener('click',async()=>{lastPrompt=promptText();status('analysisStatus',await copyText(lastPrompt)?'Prompt copiado para a área de transferência.':'Não foi possível copiar automaticamente.')});
+$('openClaudeBtn').addEventListener('click',()=>window.open('https://claude.ai/new','_blank','noopener'));
+function extractJson(raw){let s=raw.trim().replace(/^\uFEFF/,'').replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'');try{return JSON.parse(s)}catch(e){}const a=s.indexOf('{'),b=s.lastIndexOf('}');if(a>=0&&b>a)return JSON.parse(s.slice(a,b+1));throw new Error('Não encontrei um JSON válido. Peça ao Claude para responder somente com JSON válido.')}
+$('parseBtn').addEventListener('click',()=>{try{const data=extractJson($('claudeOutput').value);$('minutesSummary').value=data.summary||'';$('minutesBody').value=data.minutes||'';decisions=Array.isArray(data.decisions)?data.decisions:[];tasks=Array.isArray(data.tasks)?data.tasks:[];if(data.risks?.length)$('minutesBody').value+='\n\nRISCOS E BLOQUEIOS\n'+data.risks.map(x=>'• '+x).join('\n');if(data.openQuestions?.length)$('minutesBody').value+='\n\nQUESTÕES EM ABERTO\n'+data.openQuestions.map(x=>'• '+x).join('\n');renderDecisions();renderTasks();status('analysisStatus','Análise processada. Revise nomes, decisões e prazos antes de salvar.')}catch(e){status('analysisStatus',e.message)}});
+$('addDecisionBtn').addEventListener('click',()=>{const text=$('decisionInput').value.trim();if(!text)return;decisions.push({text,owner:null});$('decisionInput').value='';renderDecisions()});
+$('addTaskBtn').addEventListener('click',()=>{const title=$('taskInput').value.trim();if(!title)return;tasks.push({title,owner:$('taskOwner').value.trim()||null,dueDate:$('taskDue').value||null,status:'Pendente'});$('taskInput').value='';$('taskOwner').value='';$('taskDue').value='';renderTasks()});
+document.addEventListener('click',e=>{const d=e.target.closest('[data-del-decision]');if(d){decisions.splice(Number(d.dataset.delDecision),1);renderDecisions()}const t=e.target.closest('[data-del-task]');if(t){tasks.splice(Number(t.dataset.delTask),1);renderTasks()}const l=e.target.closest('[data-load]');if(l){const m=saved.find(x=>x.id===l.dataset.load);if(m)applyMeeting(m)}});
+$('saveBtn').addEventListener('click',()=>{const m=current();if(!m.transcript&&!m.summary&&!m.minutes){status('saveStatus','Adicione uma transcrição ou uma ata antes de salvar.');return}const id=window.currentMeetingId||crypto.randomUUID?.()||String(Date.now());m.id=id;const ix=saved.findIndex(x=>x.id===id);if(ix>=0)saved[ix]=m;else saved.push(m);window.currentMeetingId=id;if(persistSaved()){renderSaved();status('saveStatus','Reunião salva neste navegador. Para sincronizar entre dispositivos, a próxima etapa será integrar com o Supabase após validar o login.')}});
+function md(m){return '# Ata de reunião — '+m.title+'\n\n- **Data:** '+m.date+'\n- **Projeto/área:** '+(m.project||'Não informado')+'\n- **Participantes:** '+(m.participants||'Não informados')+'\n\n## Resumo executivo\n\n'+(m.summary||'Não informado')+'\n\n## Ata\n\n'+(m.minutes||'Não informado')+'\n\n## Decisões\n\n'+(m.decisions.length?m.decisions.map((d,i)=>(i+1)+'. '+(typeof d==='string'?d:d.text)+(d.owner?' — responsável: '+d.owner:'')).join('\n'):'Nenhuma decisão registrada')+'\n\n## Tarefas e próximos passos\n\n'+(m.tasks.length?m.tasks.map((t,i)=>(i+1)+'. [ ] '+(typeof t==='string'?t:t.title)+(t.owner?' — responsável: '+t.owner:'')+(t.dueDate?' — prazo: '+t.dueDate:'')).join('\n'):'Nenhuma tarefa registrada')+'\n\n## Transcrição\n\n'+(m.transcript||'Transcrição não fornecida')+'\n\n---\nGerado pelo NIX Meeting.'}
+function download(name,content,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+$('exportBtn').addEventListener('click',()=>{const m=current();download((m.title||'ata').replace(/[^\w-]+/g,'_')+'.md',md(m),'text/markdown;charset=utf-8');status('saveStatus','Ata exportada em Markdown.')});
+$('exportJsonBtn').addEventListener('click',()=>{download('nix-meeting-backup.json',JSON.stringify(current(),null,2),'application/json');status('saveStatus','Dados exportados em JSON.')});
+$('importBtn').addEventListener('click',()=>$('importFile').click());$('importFile').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const m=JSON.parse(await f.text());applyMeeting(m);window.currentMeetingId=m.id||null;status('saveStatus','Arquivo importado. Clique em Salvar reunião para guardar neste navegador.')}catch(err){status('saveStatus','Arquivo JSON inválido.')}e.target.value=''});
+renderDecisions();renderTasks();renderSaved();updateStats();
+})();
+</script>
+</body>
+</html>
