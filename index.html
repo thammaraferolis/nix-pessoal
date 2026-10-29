@@ -306,6 +306,141 @@ body{background:var(--nix-white);color:var(--nix-navy)}
   .field{min-height:44px;font-size:16px}
 }
 
+
+/* ===================================================================
+   NIX — NÚCLEO FLUTUANTE E INTERFACE IMERSIVA (azul-marinho profundo)
+   Camada final. Reversível: remover este bloco restaura o tema claro.
+   Movimento apenas com transform/opacity; respeita reduced-motion.
+   =================================================================== */
+:root{
+  --nix-deep:#06152E;
+  --nix-panel:#0B1F3A;
+  --nix-panel-hi:#12305A;
+  --nix-line-dark:#1D3B5C;
+  --nix-line-strong:#2A4A70;
+  --nix-teal-dark:#007F79;
+  --nix-mute-dark:#A9B9CF;
+  --mint:#00CDB8;
+  --gold:#00CDB8;
+  --pink:#FFFFFF;
+}
+body{background:var(--nix-deep);color:#FFFFFF}
+.app,.app{background:var(--nix-deep)}
+.sidebar{background:var(--nix-panel);border-right:1px solid var(--nix-line-dark);box-shadow:none;color:#FFFFFF}
+.brand b,.topbar h1,.module-head h2,.section-title,.card h2,.card h3,.card-title,.stat-value{color:#FFFFFF}
+.brand small,.nav-label,.nav button,.nav .ico,.sub,.section-desc,.stat-top,.stat-foot,.muted,.module-copy small,.day-note,.day-tile-head,.card-head p{color:var(--nix-mute-dark)}
+.nav button{background:transparent}
+.nav button:hover{background:var(--nix-panel-hi);color:#FFFFFF}
+.nav button.active{background:var(--nix-panel-hi);color:#FFFFFF;box-shadow:inset 3px 0 var(--nix-aqua,#00CDB8)}
+.nav button.active .ico,.nav .ico{color:#00CDB8}
+.eyebrow{color:#00CDB8}
+.side-note{background:var(--nix-deep);border-color:var(--nix-line-dark);color:var(--nix-mute-dark)}
+.side-note strong{color:#FFFFFF}
+.menu-toggle,.date-pill{background:var(--nix-panel);border-color:var(--nix-line-dark);color:#FFFFFF}
+.card,.day-tile,.module-tile,.stat{background:var(--nix-panel);border-color:var(--nix-line-dark);color:#FFFFFF;box-shadow:0 10px 28px #00000038}
+.module-tile{background:var(--nix-panel)}
+.module-tile:nth-child(even){background:var(--nix-panel)}
+.module-tile:hover{border-color:#00CDB8;box-shadow:0 10px 26px #00CDB826}
+.module-icon,.module-tile:nth-child(even) .module-icon{background:var(--nix-panel-hi);color:#00CDB8}
+.btn{background:var(--nix-panel-hi);border-color:var(--nix-line-strong);color:#FFFFFF}
+.btn:hover{border-color:#00CDB8}
+.btn.primary{background:#00CDB8;border-color:#00CDB8;color:var(--nix-deep)}
+.btn.primary:hover{background:#2EDCC8;border-color:#2EDCC8}
+.btn.ghost{background:transparent;color:#FFFFFF}
+.btn.danger{color:#FDA29B}
+input,select,textarea,.input,.field{background:var(--nix-deep);border-color:var(--nix-line-strong);color:#FFFFFF}
+input::placeholder,textarea::placeholder{color:#7C8FA8}
+.task{border-bottom-color:var(--nix-line-dark);color:#FFFFFF}
+.task input,.habit input{accent-color:#00CDB8}
+.toast{background:#00CDB8;color:var(--nix-deep);border-color:#00CDB8;box-shadow:0 10px 40px #00000066}
+.toast *{color:var(--nix-deep)}
+.task-form,.toolbar{color:#FFFFFF}
+
+/* --- Estágio do núcleo --- */
+.nix-stage{position:relative;display:grid;place-items:center;min-height:330px;margin-bottom:18px;border:1px solid #007F7966;border-radius:26px;overflow:hidden;padding:20px 16px 16px;background:radial-gradient(ellipse at 50% 42%,#0E2C55 0,#0B1F3A 42%,#06152E 85%);box-shadow:inset 0 0 60px #00CDB81a}
+.nix-stage::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(#00CDB80d 1px,transparent 1px),linear-gradient(90deg,#00CDB80d 1px,transparent 1px);background-size:34px 34px;-webkit-mask-image:radial-gradient(ellipse at 50% 45%,#000 0,transparent 70%);mask-image:radial-gradient(ellipse at 50% 45%,#000 0,transparent 70%)}
+.nix-float{position:relative;width:min(300px,78vw);aspect-ratio:1;pointer-events:none;animation:nix-float 3.6s ease-in-out infinite;will-change:transform}
+.nix-core-svg{width:100%;height:100%;display:block;overflow:visible}
+.nix-glow{position:absolute;left:50%;top:50%;width:62%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#00CDB8 0,#00CDB855 30%,transparent 68%);opacity:.5;pointer-events:none;animation:nix-breathe 4s ease-in-out infinite}
+.nix-layer{transform-box:view-box;transform-origin:0 0;animation:nix-spin var(--spd,20s) linear infinite}
+.nix-layer.rev{animation-direction:reverse}
+.nix-core-svg .r1{stroke:#007F79}
+.nix-core-svg .r2{stroke:#00CDB8}
+.nix-core-svg .r3{stroke:#00CDB8}
+.nix-core-svg .node{fill:#00CDB8}
+.nix-core-svg .node-dim{fill:#007F79}
+.nix-core-pulse{animation:nix-corepulse 3.2s ease-in-out infinite;transform-box:view-box;transform-origin:0 0}
+.nix-status{position:relative;margin-top:6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--nix-mute-dark);text-align:center;max-width:460px}
+.nix-status strong{color:#00CDB8;font-weight:800}
+.nix-status .nix-note{display:block;margin-top:4px;text-transform:none;letter-spacing:0;font-size:12px}
+
+/* Estados reais: ocioso (padrão), processando (comando em execução),
+   respondendo (resultado exibido), desconectado (navegador offline).
+   O estado "escutando" existe apenas como visual e não é acionado: não há escuta por voz conectada. */
+.nix-stage[data-state="idle"] .nix-layer.l1{--spd:24s}
+.nix-stage[data-state="idle"] .nix-layer.l2{--spd:15s}
+.nix-stage[data-state="idle"] .nix-layer.l3{--spd:9s}
+.nix-stage[data-state="processing"] .nix-layer.l1{--spd:6s}
+.nix-stage[data-state="processing"] .nix-layer.l2{--spd:3.5s}
+.nix-stage[data-state="processing"] .nix-layer.l3{--spd:2s}
+.nix-stage[data-state="processing"] .nix-glow{opacity:.9;animation-duration:1.4s}
+.nix-stage[data-state="processing"] .nix-status strong{animation:nix-blink 1s steps(2,start) infinite}
+.nix-stage[data-state="responding"] .nix-core-pulse{animation-duration:1.1s}
+.nix-stage[data-state="responding"] .nix-glow{opacity:.85;animation-duration:1.6s}
+.nix-stage[data-state="responding"] .nix-layer{--spd:22s}
+.nix-stage[data-state="listening"] .nix-glow{opacity:.7;animation-duration:2s}
+.nix-stage[data-state="offline"] .nix-float,.nix-stage[data-state="offline"] .nix-glow,.nix-stage[data-state="offline"] .nix-layer,.nix-stage[data-state="offline"] .nix-core-pulse{animation-play-state:paused}
+.nix-stage[data-state="offline"] .nix-glow{opacity:.12}
+.nix-stage[data-state="offline"] .nix-core-svg{filter:grayscale(1) opacity(.45)}
+.nix-stage[data-state="offline"] .nix-status strong{color:#FDA29B}
+
+@keyframes nix-spin{to{transform:rotate(360deg)}}
+@keyframes nix-float{0%,100%{transform:translateY(4px)}50%{transform:translateY(-12px)}}
+@keyframes nix-breathe{0%,100%{opacity:.45;transform:translate(-50%,-50%) scale(.96)}50%{opacity:.95;transform:translate(-50%,-50%) scale(1.04)}}
+@keyframes nix-blink{to{visibility:hidden}}
+@keyframes nix-corepulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.06);opacity:1}}
+@media (prefers-reduced-motion:reduce){
+  .nix-float,.nix-glow,.nix-layer,.nix-core-pulse,.nix-status strong{animation:none!important}
+}
+
+/* --- Módulo NIX: graduação, arcos e entrada de comandos --- */
+.nix-centro{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;z-index:2}
+.nix-marca{font-size:22px;font-weight:800;letter-spacing:.3em;color:#FFFFFF;padding-left:.3em}
+.nix-estado{display:block;font-size:11px;letter-spacing:.24em;color:#00CDB8;font-weight:800;margin-bottom:2px}
+.nix-stage[data-state="offline"] .nix-estado{color:#FDA29B}
+.nix-core-svg .ring-base{fill:none;stroke:#007F79;stroke-width:.8;opacity:.6}
+.nix-core-svg .tk{stroke:#007F79;stroke-width:.7;opacity:.85}
+.nix-core-svg .tk-maj{stroke:#00CDB8;stroke-width:1.4}
+.nix-core-svg .tk-lbl{fill:#A9B9CF;font-size:5.2px;letter-spacing:.04em;font-family:ui-monospace,Menlo,Consolas,monospace;opacity:.8}
+.nix-core-svg .arc-dim{fill:none;stroke:#007F79;stroke-width:1.2;opacity:.7}
+.nix-core-svg .arc-hi{fill:none;stroke:#00CDB8;stroke-width:2.6;stroke-linecap:round}
+.nix-core-svg .mark{fill:#00CDB8}
+.nix-core-svg .node{fill:#00CDB8}
+.nix-core-svg .core-ring{fill:#06152E;stroke:#00CDB8;stroke-width:1.6}
+.nix-stage[data-state="offline"] .arc-hi{stroke:#2A4A70}
+.nix-stage[data-state="offline"] .core-ring{stroke:#2A4A70}
+.nix-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0 4px}
+.nix-chip{font-size:11px;letter-spacing:.06em;padding:6px 11px;border-radius:99px;border:1px solid var(--nix-line-strong);color:var(--nix-mute-dark);background:var(--nix-panel)}
+.nix-chip::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;vertical-align:1px;background:#4A5C70}
+.nix-chip.is-snap::before{background:#00CDB8}
+.nix-chip.is-pend::before{background:#F5B700}
+.nix-chip.is-live::before{background:#00CDB8;box-shadow:0 0 6px #00CDB8}
+.nix-entrada{display:flex;align-items:stretch;margin:14px auto 0;max-width:720px;border:1px solid #00CDB8;border-radius:14px;overflow:hidden;background:var(--nix-deep);box-shadow:0 0 0 3px #00CDB81f}
+.nix-entrada:focus-within{box-shadow:0 0 0 3px #00CDB840}
+.nix-prompt{display:flex;align-items:center;padding:0 12px 0 14px;color:#00CDB8;font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}
+.nix-entrada input{flex:1;min-width:0;border:0;background:transparent;color:#FFFFFF;padding:14px 4px;font:inherit;font-size:15px;outline:none}
+.nix-entrada input::placeholder{color:#7C8FA8}
+.nix-enviar{border:0;background:#00CDB8;color:var(--nix-deep);font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:12px;padding:0 20px;cursor:pointer}
+.nix-enviar:hover{background:#2EDCC8}
+.nix-ajuda{text-align:center;font-size:12px;color:var(--nix-mute-dark);margin:10px 0 16px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#nixCloudAuth{background:var(--nix-panel);border-color:var(--nix-line-dark);color:#FFFFFF}
+#nixCloudAuth h2,#nixCloudAuth .card-head h2{color:#FFFFFF!important}
+#nixCloudStatus{background:#12305A!important;color:#FDE68A!important;border-color:#F5B700!important}
+#nixCloudAuth .muted,#nixCloudAuth .card-head .status{color:var(--nix-mute-dark)}
+@media (max-width:680px){.nix-marca{font-size:20px}.nix-entrada{margin-top:12px}}
+
+@media (max-width:680px){.nix-stage{min-height:280px}.nix-float{width:min(240px,70vw)}}
 </style>
 </head>
 <body>
@@ -395,6 +530,60 @@ body{background:var(--nix-white);color:var(--nix-navy)}
 </section>
 
 <section class="view active" id="view-overview">
+
+<!-- NIX · Núcleo flutuante. O estado reflete apenas ações reais do painel. -->
+<div class="nix-stage" id="nixStage" data-state="idle" role="region" aria-label="Módulo NIX">
+  <div class="nix-glow" aria-hidden="true"></div>
+  <div class="nix-float" aria-hidden="true">
+    <div class="nix-centro"><div class="nix-marca">NIX</div></div>
+    <svg class="nix-core-svg" viewBox="-100 -100 200 200">
+      <defs>
+        <radialGradient id="nixCoreG" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="#E6FFFB" stop-opacity=".9"/>
+          <stop offset=".35" stop-color="#00CDB8" stop-opacity=".55"/>
+          <stop offset="1" stop-color="#007F79" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle r="97" class="ring-base"/>
+      <g class="graduacao"><line class="tk-maj" x1="88.00" y1="0.00" x2="96.00" y2="0.00"/><line class="tk" x1="90.88" y1="4.76" x2="95.87" y2="5.02"/><line class="tk" x1="90.50" y1="9.51" x2="95.47" y2="10.03"/><line class="tk" x1="89.88" y1="14.24" x2="94.82" y2="15.02"/><line class="tk" x1="89.01" y1="18.92" x2="93.90" y2="19.96"/><line class="tk" x1="87.90" y1="23.55" x2="92.73" y2="24.85"/><line class="tk" x1="86.55" y1="28.12" x2="91.30" y2="29.67"/><line class="tk" x1="84.96" y1="32.61" x2="89.62" y2="34.40"/><line class="tk" x1="83.13" y1="37.01" x2="87.70" y2="39.05"/><line class="tk" x1="81.08" y1="41.31" x2="85.54" y2="43.58"/><line class="tk-maj" x1="76.21" y1="44.00" x2="83.14" y2="48.00"/><line class="tk" x1="76.32" y1="49.56" x2="80.51" y2="52.29"/><line class="tk" x1="73.62" y1="53.49" x2="77.67" y2="56.43"/><line class="tk" x1="70.72" y1="57.27" x2="74.61" y2="60.41"/><line class="tk" x1="67.63" y1="60.89" x2="71.34" y2="64.24"/><line class="tk" x1="64.35" y1="64.35" x2="67.88" y2="67.88"/><line class="tk" x1="60.89" y1="67.63" x2="64.24" y2="71.34"/><line class="tk" x1="57.27" y1="70.72" x2="60.41" y2="74.61"/><line class="tk" x1="53.49" y1="73.62" x2="56.43" y2="77.67"/><line class="tk" x1="49.56" y1="76.32" x2="52.29" y2="80.51"/><line class="tk-maj" x1="44.00" y1="76.21" x2="48.00" y2="83.14"/><line class="tk" x1="41.31" y1="81.08" x2="43.58" y2="85.54"/><line class="tk" x1="37.01" y1="83.13" x2="39.05" y2="87.70"/><line class="tk" x1="32.61" y1="84.96" x2="34.40" y2="89.62"/><line class="tk" x1="28.12" y1="86.55" x2="29.67" y2="91.30"/><line class="tk" x1="23.55" y1="87.90" x2="24.85" y2="92.73"/><line class="tk" x1="18.92" y1="89.01" x2="19.96" y2="93.90"/><line class="tk" x1="14.24" y1="89.88" x2="15.02" y2="94.82"/><line class="tk" x1="9.51" y1="90.50" x2="10.03" y2="95.47"/><line class="tk" x1="4.76" y1="90.88" x2="5.02" y2="95.87"/><line class="tk-maj" x1="0.00" y1="88.00" x2="0.00" y2="96.00"/><line class="tk" x1="-4.76" y1="90.88" x2="-5.02" y2="95.87"/><line class="tk" x1="-9.51" y1="90.50" x2="-10.03" y2="95.47"/><line class="tk" x1="-14.24" y1="89.88" x2="-15.02" y2="94.82"/><line class="tk" x1="-18.92" y1="89.01" x2="-19.96" y2="93.90"/><line class="tk" x1="-23.55" y1="87.90" x2="-24.85" y2="92.73"/><line class="tk" x1="-28.12" y1="86.55" x2="-29.67" y2="91.30"/><line class="tk" x1="-32.61" y1="84.96" x2="-34.40" y2="89.62"/><line class="tk" x1="-37.01" y1="83.13" x2="-39.05" y2="87.70"/><line class="tk" x1="-41.31" y1="81.08" x2="-43.58" y2="85.54"/><line class="tk-maj" x1="-44.00" y1="76.21" x2="-48.00" y2="83.14"/><line class="tk" x1="-49.56" y1="76.32" x2="-52.29" y2="80.51"/><line class="tk" x1="-53.49" y1="73.62" x2="-56.43" y2="77.67"/><line class="tk" x1="-57.27" y1="70.72" x2="-60.41" y2="74.61"/><line class="tk" x1="-60.89" y1="67.63" x2="-64.24" y2="71.34"/><line class="tk" x1="-64.35" y1="64.35" x2="-67.88" y2="67.88"/><line class="tk" x1="-67.63" y1="60.89" x2="-71.34" y2="64.24"/><line class="tk" x1="-70.72" y1="57.27" x2="-74.61" y2="60.41"/><line class="tk" x1="-73.62" y1="53.49" x2="-77.67" y2="56.43"/><line class="tk" x1="-76.32" y1="49.56" x2="-80.51" y2="52.29"/><line class="tk-maj" x1="-76.21" y1="44.00" x2="-83.14" y2="48.00"/><line class="tk" x1="-81.08" y1="41.31" x2="-85.54" y2="43.58"/><line class="tk" x1="-83.13" y1="37.01" x2="-87.70" y2="39.05"/><line class="tk" x1="-84.96" y1="32.61" x2="-89.62" y2="34.40"/><line class="tk" x1="-86.55" y1="28.12" x2="-91.30" y2="29.67"/><line class="tk" x1="-87.90" y1="23.55" x2="-92.73" y2="24.85"/><line class="tk" x1="-89.01" y1="18.92" x2="-93.90" y2="19.96"/><line class="tk" x1="-89.88" y1="14.24" x2="-94.82" y2="15.02"/><line class="tk" x1="-90.50" y1="9.51" x2="-95.47" y2="10.03"/><line class="tk" x1="-90.88" y1="4.76" x2="-95.87" y2="5.02"/><line class="tk-maj" x1="-88.00" y1="0.00" x2="-96.00" y2="0.00"/><line class="tk" x1="-90.88" y1="-4.76" x2="-95.87" y2="-5.02"/><line class="tk" x1="-90.50" y1="-9.51" x2="-95.47" y2="-10.03"/><line class="tk" x1="-89.88" y1="-14.24" x2="-94.82" y2="-15.02"/><line class="tk" x1="-89.01" y1="-18.92" x2="-93.90" y2="-19.96"/><line class="tk" x1="-87.90" y1="-23.55" x2="-92.73" y2="-24.85"/><line class="tk" x1="-86.55" y1="-28.12" x2="-91.30" y2="-29.67"/><line class="tk" x1="-84.96" y1="-32.61" x2="-89.62" y2="-34.40"/><line class="tk" x1="-83.13" y1="-37.01" x2="-87.70" y2="-39.05"/><line class="tk" x1="-81.08" y1="-41.31" x2="-85.54" y2="-43.58"/><line class="tk-maj" x1="-76.21" y1="-44.00" x2="-83.14" y2="-48.00"/><line class="tk" x1="-76.32" y1="-49.56" x2="-80.51" y2="-52.29"/><line class="tk" x1="-73.62" y1="-53.49" x2="-77.67" y2="-56.43"/><line class="tk" x1="-70.72" y1="-57.27" x2="-74.61" y2="-60.41"/><line class="tk" x1="-67.63" y1="-60.89" x2="-71.34" y2="-64.24"/><line class="tk" x1="-64.35" y1="-64.35" x2="-67.88" y2="-67.88"/><line class="tk" x1="-60.89" y1="-67.63" x2="-64.24" y2="-71.34"/><line class="tk" x1="-57.27" y1="-70.72" x2="-60.41" y2="-74.61"/><line class="tk" x1="-53.49" y1="-73.62" x2="-56.43" y2="-77.67"/><line class="tk" x1="-49.56" y1="-76.32" x2="-52.29" y2="-80.51"/><line class="tk-maj" x1="-44.00" y1="-76.21" x2="-48.00" y2="-83.14"/><line class="tk" x1="-41.31" y1="-81.08" x2="-43.58" y2="-85.54"/><line class="tk" x1="-37.01" y1="-83.13" x2="-39.05" y2="-87.70"/><line class="tk" x1="-32.61" y1="-84.96" x2="-34.40" y2="-89.62"/><line class="tk" x1="-28.12" y1="-86.55" x2="-29.67" y2="-91.30"/><line class="tk" x1="-23.55" y1="-87.90" x2="-24.85" y2="-92.73"/><line class="tk" x1="-18.92" y1="-89.01" x2="-19.96" y2="-93.90"/><line class="tk" x1="-14.24" y1="-89.88" x2="-15.02" y2="-94.82"/><line class="tk" x1="-9.51" y1="-90.50" x2="-10.03" y2="-95.47"/><line class="tk" x1="-4.76" y1="-90.88" x2="-5.02" y2="-95.87"/><line class="tk-maj" x1="-0.00" y1="-88.00" x2="-0.00" y2="-96.00"/><line class="tk" x1="4.76" y1="-90.88" x2="5.02" y2="-95.87"/><line class="tk" x1="9.51" y1="-90.50" x2="10.03" y2="-95.47"/><line class="tk" x1="14.24" y1="-89.88" x2="15.02" y2="-94.82"/><line class="tk" x1="18.92" y1="-89.01" x2="19.96" y2="-93.90"/><line class="tk" x1="23.55" y1="-87.90" x2="24.85" y2="-92.73"/><line class="tk" x1="28.12" y1="-86.55" x2="29.67" y2="-91.30"/><line class="tk" x1="32.61" y1="-84.96" x2="34.40" y2="-89.62"/><line class="tk" x1="37.01" y1="-83.13" x2="39.05" y2="-87.70"/><line class="tk" x1="41.31" y1="-81.08" x2="43.58" y2="-85.54"/><line class="tk-maj" x1="44.00" y1="-76.21" x2="48.00" y2="-83.14"/><line class="tk" x1="49.56" y1="-76.32" x2="52.29" y2="-80.51"/><line class="tk" x1="53.49" y1="-73.62" x2="56.43" y2="-77.67"/><line class="tk" x1="57.27" y1="-70.72" x2="60.41" y2="-74.61"/><line class="tk" x1="60.89" y1="-67.63" x2="64.24" y2="-71.34"/><line class="tk" x1="64.35" y1="-64.35" x2="67.88" y2="-67.88"/><line class="tk" x1="67.63" y1="-60.89" x2="71.34" y2="-64.24"/><line class="tk" x1="70.72" y1="-57.27" x2="74.61" y2="-60.41"/><line class="tk" x1="73.62" y1="-53.49" x2="77.67" y2="-56.43"/><line class="tk" x1="76.32" y1="-49.56" x2="80.51" y2="-52.29"/><line class="tk-maj" x1="76.21" y1="-44.00" x2="83.14" y2="-48.00"/><line class="tk" x1="81.08" y1="-41.31" x2="85.54" y2="-43.58"/><line class="tk" x1="83.13" y1="-37.01" x2="87.70" y2="-39.05"/><line class="tk" x1="84.96" y1="-32.61" x2="89.62" y2="-34.40"/><line class="tk" x1="86.55" y1="-28.12" x2="91.30" y2="-29.67"/><line class="tk" x1="87.90" y1="-23.55" x2="92.73" y2="-24.85"/><line class="tk" x1="89.01" y1="-18.92" x2="93.90" y2="-19.96"/><line class="tk" x1="89.88" y1="-14.24" x2="94.82" y2="-15.02"/><line class="tk" x1="90.50" y1="-9.51" x2="95.47" y2="-10.03"/><line class="tk" x1="90.88" y1="-4.76" x2="95.87" y2="-5.02"/><text class="tk-lbl" x="0.0" y="-76.0" text-anchor="middle">000</text><text class="tk-lbl" x="39.0" y="-65.5" text-anchor="middle">030</text><text class="tk-lbl" x="67.5" y="-37.0" text-anchor="middle">060</text><text class="tk-lbl" x="78.0" y="2.0" text-anchor="middle">090</text><text class="tk-lbl" x="67.5" y="41.0" text-anchor="middle">120</text><text class="tk-lbl" x="39.0" y="69.5" text-anchor="middle">150</text><text class="tk-lbl" x="0.0" y="80.0" text-anchor="middle">180</text><text class="tk-lbl" x="-39.0" y="69.5" text-anchor="middle">210</text><text class="tk-lbl" x="-67.5" y="41.0" text-anchor="middle">240</text><text class="tk-lbl" x="-78.0" y="2.0" text-anchor="middle">270</text><text class="tk-lbl" x="-67.5" y="-37.0" text-anchor="middle">300</text><text class="tk-lbl" x="-39.0" y="-65.5" text-anchor="middle">330</text></g>
+      <g class="nix-layer l1">
+        <circle r="84" class="arc-dim" stroke-dasharray="120 20 40 30"/>
+        <circle r="84" class="arc-hi" stroke-dasharray="26 232"/>
+        <path d="M0,-84 l3,-6 l-6,0 z" class="mark"/>
+      </g>
+      <g class="nix-layer l2 rev">
+        <circle r="66" class="arc-hi" stroke-width="3.2" stroke-dasharray="70 16 22 16 110 40"/>
+        <circle r="66" class="arc-dim" stroke-width="1" stroke-dasharray="2 4"/>
+        <circle cx="0" cy="-66" r="2.6" class="node"/>
+      </g>
+      <g class="nix-layer l3">
+        <circle r="50" class="arc-dim" stroke-dasharray="6 8"/>
+        <circle r="50" class="arc-hi" stroke-width="1.8" stroke-dasharray="44 270"/>
+      </g>
+      <g class="nix-core-pulse">
+        <circle r="38" fill="url(#nixCoreG)"/>
+        <circle r="26" class="core-ring"/>
+      </g>
+    </svg>
+  </div>
+    <div class="nix-status" aria-live="polite"><strong class="nix-estado" id="nixStageLabel">OCIOSO</strong><span class="nix-note" id="nixStageNote">Nenhuma escuta por voz está ativa. Os comandos rodam neste painel.</span></div>
+</div>
+
+<div class="nix-chips" id="nixChips" aria-label="Estado das integrações">
+  <span class="nix-chip is-pend">Agenda · pendente</span>
+  <span class="nix-chip is-snap">Make · instantâneo</span>
+  <span class="nix-chip is-snap">Telegram · aviso 07:00</span>
+  <span class="nix-chip is-off">Gmail · não lido</span>
+  <span class="nix-chip is-off">IA · não conectada</span>
+</div>
+
+<form class="nix-entrada" id="nixEntrada" autocomplete="off">
+  <label class="sr-only" for="nixComando">Comando para o NIX</label>
+  <span class="nix-prompt" aria-hidden="true">&gt;_</span>
+  <input id="nixComando" type="text" placeholder="Ex.: agenda de hoje, automações, triagem" maxlength="120">
+  <button class="nix-enviar" type="submit">Enviar</button>
+</form>
+<p class="nix-ajuda" id="nixAjuda">Comandos reconhecidos: agenda, automações, triagem, pendências.</p>
 
 <!-- NIX · Central do dia. Cada bloco declara a origem do dado:
      AO VIVO = lido agora neste navegador · INSTANTÂNEO = estado registrado numa data,
@@ -854,11 +1043,59 @@ async function nixExec(id){
   }
 }
 
+function nixCoreState(estado){
+  const st=document.getElementById('nixStage');if(!st)return;
+  const rotulos={idle:['Ocioso','Nenhuma escuta por voz está ativa. Os comandos abaixo rodam neste painel.'],
+    processing:['Processando','Consultando a fonte do comando selecionado.'],
+    responding:['Respondendo','Resultado exibido na central de comandos.'],
+    offline:['Desconectado','Este navegador está offline. Nada foi consultado.']};
+  const r=rotulos[estado]||rotulos.idle;
+  st.dataset.state=estado;
+  const l=document.getElementById('nixStageLabel'),n=document.getElementById('nixStageNote');
+  if(l)l.textContent=r[0];if(n)n.textContent=r[1];
+}
+
+
+/* Entrada de comandos: reconhece apenas comandos que o painel já executa.
+   Nenhum texto é enviado a provedor de IA nem a serviço externo. */
+function nixInterpretar(txt){
+  const t=(txt||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  if(!t.trim())return null;
+  if(/agenda|compromiss|hoje|reuni|proxim/.test(t))return 'prox';
+  if(/automac|automac|make|cenario/.test(t))return 'autos';
+  if(/triagem|e-?mail|gmail|caixa/.test(t))return 'triagem';
+  if(/pend/.test(t))return 'pend';
+  return false;
+}
+function nixEntradaSubmit(ev){
+  ev.preventDefault();
+  const campo=document.getElementById('nixComando');
+  const r=nixInterpretar(campo?.value);
+  const ajuda=document.getElementById('nixAjuda');
+  if(r===null)return;
+  if(r===false){
+    if(ajuda)ajuda.textContent='Não reconheci esse comando. Use: agenda, automações, triagem ou pendências. Nada foi enviado.';
+    return;
+  }
+  if(ajuda)ajuda.textContent='Comando reconhecido: '+r+'.';
+  document.querySelector('[data-cmd="'+r+'"]')?.click();
+}
+
 function nixMontarComandos(){
   const bar=document.getElementById('cmdBar');
   if(!bar)return;
   bar.innerHTML=NIX_COMANDOS.map(c=>`<button class="btn" data-cmd="${c.id}">${c.rotulo}</button>`).join('');
-  bar.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>nixExec(b.dataset.cmd));
+  bar.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=async()=>{
+    nixCoreState(navigator.onLine===false?'offline':'processing');
+    try{await nixExec(b.dataset.cmd);}finally{
+      nixCoreState(navigator.onLine===false?'offline':'responding');
+      setTimeout(()=>{if(document.getElementById('nixStage')?.dataset.state==='responding')nixCoreState('idle');},2200);
+    }
+  });
+  document.getElementById('nixEntrada')?.addEventListener('submit',nixEntradaSubmit);
+  window.addEventListener('offline',()=>nixCoreState('offline'));
+  window.addEventListener('online',()=>nixCoreState('idle'));
+  if(navigator.onLine===false)nixCoreState('offline');
   document.getElementById('agendaConnect')?.addEventListener('click',nixCalConnect);
   document.getElementById('agendaRefresh')?.addEventListener('click',nixCalFetch);
   nixAgendaPendente();
