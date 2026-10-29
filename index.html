@@ -329,7 +329,7 @@ body{background:var(--nix-deep);color:#FFFFFF}
 .sidebar{background:var(--nix-panel);border-right:1px solid var(--nix-line-dark);box-shadow:none;color:#FFFFFF}
 .brand b,.topbar h1,.module-head h2,.section-title,.card h2,.card h3,.card-title,.stat-value{color:#FFFFFF}
 .brand small,.nav-label,.nav button,.nav .ico,.sub,.section-desc,.stat-top,.stat-foot,.muted,.module-copy small,.day-note,.day-tile-head,.card-head p{color:var(--nix-mute-dark)}
-.nav button{background:transparent}
+.nav button{background:transparent}.nav .nix-meeting-link{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--nix-mute-dark);padding:12px;border-radius:11px}.nav .nix-meeting-link:hover{background:var(--nix-panel-hi);color:#fff}.nav .nix-meeting-link .ico{color:var(--aqua,#00CDB8)}
 .nav button:hover{background:var(--nix-panel-hi);color:#FFFFFF}
 .nav button.active{background:var(--nix-panel-hi);color:#FFFFFF;box-shadow:inset 3px 0 var(--nix-aqua,#00CDB8)}
 .nav button.active .ico,.nav .ico{color:#00CDB8}
@@ -468,6 +468,7 @@ input::placeholder,textarea::placeholder{color:#7C8FA8}
     <button data-view="finance"><span class="ico">◫</span> Finanças</button>
     <button data-view="notes"><span class="ico">✎</span> Anotações</button>
     <div class="nav-grp">Sistema</div>
+    <a href="./nix-meeting.html" class="nav nix-meeting-link"><span class="ico">◉</span> NIX Meeting</a>
     <button data-view="connections"><span class="ico">⌘</span> Integrações</button>
   </nav></div>
   <div class="side-note"><strong>Seu sistema, suas regras.</strong>Seus dados deste protótipo ficam salvos localmente neste navegador. Nenhuma conta bancária ou caixa de e-mail é acessada.</div>
