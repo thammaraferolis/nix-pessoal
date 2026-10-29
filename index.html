@@ -473,7 +473,7 @@ body{background:var(--nix-white);color:var(--nix-navy)}
 </section>
 
 <section class="view" id="view-tasks"><h2 class="section-title">Gestão de tarefas</h2><p class="section-desc">Transforme intenção em próxima ação.</p>
-<form id="taskForm" class="task-form"><input id="taskInput" class="field task-input" placeholder="Ex.: Revisar prioridades da semana" required maxlength="160"><select id="taskArea" class="field"><option>Pessoal</option><option>Trabalho</option><option>Estudos</option><option>Saúde</option><option>Finanças</option></select><button class="btn primary">＋ Adicionar</button></form>
+<form id="taskForm" class="task-form"><input id="taskInput" class="field task-input" placeholder="Ex.: Revisar prioridades da semana" required maxlength="160"><select id="taskArea" class="field"><option>Pessoal</option><option>Trabalho</option><option>Estudos</option><option>Saúde</option><option>Finanças</option></select><button class="btn primary" type="submit">＋ Adicionar</button></form>
 <div class="toolbar"><select id="taskFilter" class="field" style="max-width:200px"><option value="all">Todas as tarefas</option><option value="pending">Pendentes</option><option value="done">Concluídas</option></select><button id="clearDone" class="btn">Remover concluídas</button></div><div class="card"><div id="taskList" class="task-list"></div></div>
 </section>
 
@@ -901,7 +901,10 @@ function render(){
  document.getElementById('overviewHabits').innerHTML=names.map((n,i)=>`<div class="task"><span style="color:${state.habits.items[i]?'var(--mint)':'var(--muted)'}">${state.habits.items[i]?'✓':'○'}</span><span class="task-title">${n}</span></div>`).join('');
  document.getElementById('habitPercent').textContent=Math.round(hab/4*100)+'%';document.getElementById('habitProgress').style.width=(hab/4*100)+'%';
  document.getElementById('goalInput').value=state.goal||'';document.getElementById('goalWhy').value=state.goalWhy||'';document.getElementById('income').value=state.income||'';document.getElementById('expenses').value=state.expenses||'';document.getElementById('notesInput').value=state.notes||'';
- const ovInt=document.getElementById('overviewIntegrations');if(ovInt)ovInt.innerHTML=integrations.slice(0,3).map(integrationHTML).join('');document.getElementById('connectionsList').innerHTML=integrations.map(integrationHTML).join('');
+ /* A lista resumida saiu da tela inicial: quem mostra integrações lá agora é o
+    "Resumo do sistema". A lista completa segue na aba de Integrações. */
+ const lista=document.getElementById('connectionsList');
+ if(lista)lista.innerHTML=integrations.map(integrationHTML).join('');
  nixRenderStatus();
  document.querySelectorAll('[data-task]').forEach(el=>el.onchange=()=>{let t=state.tasks.find(t=>t.id===Number(el.dataset.task));if(t){t.done=el.checked;persist()}});
  document.querySelectorAll('[data-delete]').forEach(el=>el.onclick=()=>{state.tasks=state.tasks.filter(t=>t.id!==Number(el.dataset.delete));persist();toast('Tarefa removida')});
