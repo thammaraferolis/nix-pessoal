@@ -128,7 +128,7 @@ body{background:#fff;color:var(--text)}
   /* --- Paleta oficial --- */
   --nix-white:#FFFFFF;
   --nix-navy:#0B1F3A;
-  --nix-aqua:#75E0D0;
+  --nix-aqua:#00CDB8;
 
   /* --- Derivados de estrutura (navy) --- */
   --nix-navy-80:#2A4055;
@@ -137,9 +137,10 @@ body{background:#fff;color:var(--text)}
   --nix-navy-04:#0B1F3A0A;
 
   /* --- Derivados de destaque (aqua) --- */
-  --nix-aqua-deep:#0E7C6B;   /* aqua escurecido: único uso em TEXTO sobre branco */
-  --nix-aqua-soft:#E8FAF6;   /* fundo de realce */
-  --nix-aqua-line:#B6EFE5;   /* borda de realce */
+  --nix-aqua-deep:#00806F;   /* aqua escurecido: único uso em TEXTO sobre branco (4,86:1) */
+  --nix-aqua-soft:#F0FDFB;   /* fundo de realce, sempre com navy ou aqua-deep por cima */
+  --nix-aqua-line:#9FE9DF;   /* borda de realce */
+  --nix-aqua-glow:#00CDB833; /* brilho sutil do núcleo e dos anéis */
 
   /* --- Neutros discretos --- */
   --nix-gray-line:#E4E7EC;
@@ -171,14 +172,21 @@ body{background:var(--nix-white);color:var(--nix-navy)}
 
 /* --- Navegação e cabeçalho --- */
 .sidebar{background:var(--nix-white);border-right:1px solid var(--nix-gray-line);box-shadow:4px 0 24px var(--nix-navy-04);color:var(--nix-navy)}
-.logo{background:var(--nix-navy);color:var(--nix-aqua);box-shadow:0 6px 18px var(--nix-navy-08)}
+/* Núcleo visual do NIX: anéis técnicos alternando aqua e navy, com brilho
+   contido. O SVG herda as cores dos tokens — nada fixo aqui. */
+.logo{background:var(--nix-navy);color:var(--nix-aqua);box-shadow:0 6px 18px var(--nix-navy-08),0 0 0 1px var(--nix-aqua-glow);padding:0;overflow:hidden}
+.logo svg{width:100%;height:100%;display:block}
+.logo .ring-a{fill:none;stroke:var(--nix-aqua);stroke-width:2.4;opacity:.95}
+.logo .ring-b{fill:none;stroke:var(--nix-aqua);stroke-width:1.2;opacity:.45}
+.logo .core{fill:var(--nix-aqua)}
+.logo .tick{stroke:var(--nix-aqua);stroke-width:1.6;stroke-linecap:round;opacity:.8}
 .brand b{color:var(--nix-navy)}
 .brand small{color:var(--nix-gray-text)}
 .nav-label{color:var(--nix-navy-60)}
 .nav button{color:var(--nix-navy-80)}
 .nav .ico{color:var(--nix-navy-60)}
 .nav button:hover{background:var(--nix-aqua-soft);color:var(--nix-navy)}
-.nav button.active{background:var(--nix-aqua-soft);color:var(--nix-navy);box-shadow:inset 3px 0 var(--nix-aqua);font-weight:700}
+.nav button.active{background:var(--nix-aqua-soft);color:var(--nix-navy);box-shadow:inset 3px 0 var(--nix-aqua-deep);font-weight:700}
 .nav button.active .ico{color:var(--nix-aqua-deep)}
 .side-note{background:var(--nix-gray-bg);border-color:var(--nix-gray-line);color:var(--nix-gray-text)}
 .side-note strong{color:var(--nix-navy)}
@@ -202,20 +210,22 @@ body{background:var(--nix-white);color:var(--nix-navy)}
 /* --- Botões e campos --- */
 .btn{border-color:var(--nix-gray-line);background:var(--nix-white);color:var(--nix-navy)}
 .btn:hover{border-color:var(--nix-navy-60)}
-.btn.primary{background:var(--nix-navy);border-color:var(--nix-navy);color:var(--nix-white)}
-.btn.primary:hover{background:#13304f;border-color:#13304f}
+/* Botão principal: preenchimento aqua com texto navy — 8,20:1, bem acima do
+   mínimo. Branco sobre aqua daria 2,01:1 e seria ilegível, por isso navy. */
+.btn.primary{background:var(--nix-aqua);border-color:var(--nix-aqua);color:var(--nix-navy);font-weight:700}
+.btn.primary:hover{background:#00B8A5;border-color:#00B8A5;box-shadow:0 2px 10px var(--nix-aqua-glow)}
 .btn.ghost{background:transparent;color:var(--nix-navy)}
 .btn.danger{color:var(--nix-danger)}
 .field{background:var(--nix-white);color:var(--nix-navy);border-color:var(--nix-gray-line)}
 .field::placeholder{color:#98A2B3}
-.field:focus{border-color:var(--nix-aqua-deep);box-shadow:0 0 0 3px #75E0D059}
+.field:focus{border-color:var(--nix-aqua-deep);box-shadow:0 0 0 3px var(--nix-aqua-glow)}
 .field-label{color:var(--nix-navy-80)}
 .task input,.habit input{accent-color:var(--nix-navy)}
 .task{border-bottom-color:var(--nix-gray-line)}
 .task-title{color:var(--nix-navy)}
 .task-title.done{color:#98A2B3}
 .habit{background:var(--nix-white);border-color:var(--nix-gray-line)}
-.habit.done{border-color:var(--nix-aqua);background:var(--nix-aqua-soft)}
+.habit.done{border-color:var(--nix-aqua-deep);background:var(--nix-aqua-soft)}
 
 /* --- Status, alertas e notificações --- */
 .status{color:var(--nix-warn);background:#FFF6E0}
@@ -301,7 +311,7 @@ body{background:var(--nix-white);color:var(--nix-navy)}
 <body>
 <div class="sidebar-scrim" id="sidebarScrim" aria-hidden="true"></div><div class="app">
 <aside class="sidebar">
-  <div class="brand"><div class="logo">N</div><div><b>NIX PESSOAL</b><small>PERSONAL INTELLIGENCE</small></div></div>
+  <div class="brand"><div class="logo" role="img" aria-label="NIX"><svg viewBox="0 0 48 48" aria-hidden="true"><circle class="ring-a" cx="24" cy="24" r="14"/><circle class="ring-b" cx="24" cy="24" r="19"/><circle class="core" cx="24" cy="24" r="5.2"/><line class="tick" x1="24" y1="3" x2="24" y2="8"/><line class="tick" x1="24" y1="40" x2="24" y2="45"/><line class="tick" x1="3" y1="24" x2="8" y2="24"/><line class="tick" x1="40" y1="24" x2="45" y2="24"/></svg></div><div><b>NIX PESSOAL</b><small>PERSONAL INTELLIGENCE</small></div></div>
   <div><div class="nav-label">ESPAÇO PESSOAL</div><nav class="nav" id="nav">
     <button data-view="routine"><span class="ico">◷</span> Minha rotina</button>
     <button class="active" data-view="overview"><span class="ico">◈</span> Visão geral</button>
@@ -1052,7 +1062,7 @@ function nixBuildMaterialSlides(text){
 document.getElementById('matPreviewBtn')?.addEventListener('click',()=>{
  const text=document.getElementById('matOutput')?.value.trim();if(!text){toast('Gere um material primeiro');return}
  const wrap=document.getElementById('matPreview'),host=document.getElementById('matPreviewSlides'),design=document.getElementById('matDesign')?.value||'executivo';
- const colors=design==='institucional'?{bg:'#ffffff',ink:'#101744',accent:'#f52b80',muted:'#5b627c'}:design==='treinamento'?{bg:'#fffdf7',ink:'#263238',accent:'#f6c945',muted:'#68747d'}:design==='minimal'?{bg:'#fff',ink:'#202633',accent:'#d5d9e0',muted:'#667085'}:{bg:'#ffffff',ink:'#0B1F3A',accent:'#75E0D0',muted:'#5B6779'};
+ const colors=design==='institucional'?{bg:'#ffffff',ink:'#101744',accent:'#f52b80',muted:'#5b627c'}:design==='treinamento'?{bg:'#fffdf7',ink:'#263238',accent:'#f6c945',muted:'#68747d'}:design==='minimal'?{bg:'#fff',ink:'#202633',accent:'#d5d9e0',muted:'#667085'}:{bg:'#ffffff',ink:'#0B1F3A',accent:'#00CDB8',muted:'#5B6779'};
  host.replaceChildren();
  nixBuildMaterialSlides(text).forEach((g,i)=>{
   const card=document.createElement('article');card.style.cssText='aspect-ratio:16/9;min-height:180px;border:1px solid #d0d5dd;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 4px 14px #00000010;background:'+colors.bg+';color:'+colors.ink;
@@ -1181,7 +1191,7 @@ document.getElementById('matPptx')?.addEventListener('click',async()=>{
   const pptx=new pptxgen();pptx.layout='LAYOUT_WIDE';pptx.author='NIX Personal Intelligence';pptx.subject='Material gerado pelo NIX';pptx.title=document.getElementById('matTopic').value.trim()||'Material NIX';pptx.company='NIX Personal Intelligence';pptx.lang='pt-BR';
   pptx.theme={headFontFace:'Aptos Display',bodyFontFace:'Aptos',lang:'pt-BR'};
   const design=document.getElementById('matDesign')?.value||'executivo';
-  const palette=design==='institucional'?{accent:'F52B80',accent2:'101744',ink:'101744',muted:'5B627C',bg:'FFFFFF'}:design==='treinamento'?{accent:'F6C945',accent2:'F28C28',ink:'263238',muted:'68747D',bg:'FFFDF7'}:design==='minimal'?{accent:'D5D9E0',accent2:'667085',ink:'202633',muted:'667085',bg:'FFFFFF'}:{accent:'75E0D0',accent2:'0B1F3A',ink:'0B1F3A',muted:'5B6779',bg:'FFFFFF'};
+  const palette=design==='institucional'?{accent:'F52B80',accent2:'101744',ink:'101744',muted:'5B627C',bg:'FFFFFF'}:design==='treinamento'?{accent:'F6C945',accent2:'F28C28',ink:'263238',muted:'68747D',bg:'FFFDF7'}:design==='minimal'?{accent:'D5D9E0',accent2:'667085',ink:'202633',muted:'667085',bg:'FFFFFF'}:{accent:'00CDB8',accent2:'0B1F3A',ink:'0B1F3A',muted:'5B6779',bg:'FFFFFF'};
   const title=document.getElementById('matTopic').value.trim()||'Material NIX';
   const type=document.getElementById('matType').selectedOptions[0]?.text||'Material';
   const raw=output.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
