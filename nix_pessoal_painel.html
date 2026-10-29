@@ -756,7 +756,11 @@ input::placeholder,textarea::placeholder{color:#7C8FA8}
 const NIX_SUPABASE_URL='https://yfudeqzvngueiqratgit.supabase.co';
 const NIX_SUPABASE_KEY='sb_publishable_j0opSangOcOjMd4bxhYJjw_n7k-LCpr';
 const NIX_REDIRECT_URL='https://thammaraferolis.github.io/nix-pessoal/nix_pessoal_painel.html';
-const nixCloud=window.supabase?.createClient(NIX_SUPABASE_URL,NIX_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+let nixCloud=null,nixFallbackTried=false;
+function nixMakeClient(){
+ if(!nixCloud&&window.supabase){try{nixCloud=window.supabase.createClient(NIX_SUPABASE_URL,NIX_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}catch(e){}}
+ return nixCloud;
+}
 let nixCloudUser=null,nixCloudBusy=false,nixCloudTimer=null;
 function nixMessage(s){const e=document.getElementById('nixAuthMessage');if(e)e.textContent=s}
 function nixStatus(s,ok=false){const e=document.getElementById('nixCloudStatus');if(e){e.textContent=s;e.classList.toggle('ready',ok)}}
@@ -845,7 +849,19 @@ async function nixSyncPersonalModules(){
  }catch(e){nixMessage('Dados locais salvos. A sincronização em nuvem não concluiu: '+(e.message||'erro de conexão'))}
 }
 function nixWireAuth(){
- if(!nixCloud){nixStatus('Indisponível');nixMessage('A biblioteca de conexão não carregou. Verifique sua internet e recarregue a página.');return}
+ if(!nixMakeClient()){
+  if(!nixFallbackTried){
+   // Segunda origem da mesma biblioteca, caso o CDN principal esteja indisponível.
+   nixFallbackTried=true;
+   const s=document.createElement('script');
+   s.src='https://unpkg.com/@supabase/supabase-js@2';
+   s.onload=()=>nixWireAuth();
+   s.onerror=()=>{nixStatus('Indisponível');nixMessage('A biblioteca de conexão não carregou. Verifique sua internet e recarregue a página.')};
+   document.head.appendChild(s);
+   return;
+  }
+  nixStatus('Indisponível');nixMessage('A biblioteca de conexão não carregou. Verifique sua internet e recarregue a página.');return;
+ }
  document.getElementById('nixAuthForm').addEventListener('submit',async e=>{
   e.preventDefault();const email=document.getElementById('nixAuthEmail').value.trim(),btn=document.getElementById('nixAuthSubmit');btn.disabled=true;
   try{const {error}=await nixCloud.auth.signInWithOtp({email,options:{emailRedirectTo:NIX_REDIRECT_URL}});if(error)throw error;nixStatus('Aguardando confirmação');nixMessage('Se o login por e-mail estiver habilitado, enviaremos um link. Abra-o neste dispositivo para concluir a conexão.')}
