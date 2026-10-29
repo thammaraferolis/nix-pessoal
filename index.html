@@ -248,6 +248,45 @@ body{background:var(--nix-white);color:var(--nix-navy)}
 /* --- Acessibilidade: foco visível em teclado --- */
 :focus-visible{outline:2px solid var(--nix-aqua-deep);outline-offset:2px}
 
+/* --- Dashboard: origem do dado (real / desatualizado / indisponível) --- */
+.src{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:99px;white-space:nowrap}
+.src::before{content:"";width:6px;height:6px;border-radius:50%;flex:0 0 6px}
+.src-live{background:var(--nix-aqua-soft);color:var(--nix-aqua-deep)}
+.src-live::before{background:var(--nix-aqua-deep)}
+.src-snap{background:#FFF6E0;color:var(--nix-warn)}
+.src-snap::before{background:var(--nix-warn)}
+.src-off{background:var(--nix-gray-bg);color:var(--nix-gray-text)}
+.src-off::before{background:#98A2B3}
+
+/* --- Dashboard: tiles compactos do dia --- */
+.day-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.day-tile{border:1px solid var(--nix-gray-line);border-radius:16px;padding:15px;background:var(--nix-white);min-width:0;display:flex;flex-direction:column;gap:8px}
+.day-tile-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.day-tile-head strong{font-size:13px;color:var(--nix-navy);display:flex;align-items:center;gap:8px;min-width:0}
+.day-tile-head .ti{width:28px;height:28px;flex:0 0 28px;border-radius:9px;background:var(--nix-aqua-soft);color:var(--nix-navy);display:grid;place-items:center;font-size:14px}
+.day-main{font-size:17px;font-weight:700;letter-spacing:-.02em;color:var(--nix-navy);line-height:1.3}
+.day-note{font-size:11px;color:var(--nix-gray-text);line-height:1.45}
+.day-tile.is-off .day-main{color:var(--nix-gray-text);font-weight:650;font-size:15px}
+
+/* --- Dashboard: notificações e resumo --- */
+.notif-empty{display:flex;align-items:flex-start;gap:12px;padding:16px;border:1px dashed var(--nix-gray-line);border-radius:13px;background:var(--nix-gray-bg)}
+.notif-empty .ne-ico{width:34px;height:34px;flex:0 0 34px;border-radius:11px;background:var(--nix-white);border:1px solid var(--nix-gray-line);display:grid;place-items:center;color:var(--nix-gray-text)}
+.notif-empty p{margin:0;font-size:12px;color:var(--nix-gray-text);line-height:1.5}
+.notif-empty strong{display:block;color:var(--nix-navy);font-size:13px;margin-bottom:3px}
+.sys-list{display:grid;gap:0}
+.sys-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--nix-gray-line);font-size:12px;min-width:0}
+.sys-row:last-child{border-bottom:0}
+.sys-row span:first-child{color:var(--nix-navy);min-width:0}
+.sys-row small{display:block;color:var(--nix-gray-text);font-size:11px;margin-top:2px}
+
+@media(max-width:680px){
+  .day-grid{grid-template-columns:1fr;gap:10px}
+  .day-tile{padding:13px}
+  .day-main{font-size:16px}
+  .src{font-size:9px;padding:3px 7px}
+  .sys-row{flex-direction:column;align-items:flex-start;gap:3px}
+}
+
 /* --- Mobile (Android em primeiro lugar) --- */
 @media(max-width:680px){
   .sidebar{background:var(--nix-white);box-shadow:12px 0 40px #0B1F3A29}
@@ -346,6 +385,28 @@ body{background:var(--nix-white);color:var(--nix-navy)}
 </section>
 
 <section class="view active" id="view-overview">
+
+<!-- NIX · Central do dia. Cada bloco declara a origem do dado:
+     AO VIVO = lido agora neste navegador · INSTANTÂNEO = estado registrado numa data,
+     não atualiza sozinho · NÃO CONECTADO = o painel não tem acesso a essa fonte. -->
+<div class="day-grid">
+  <div class="day-tile is-off">
+    <div class="day-tile-head"><strong><span class="ti">◷</span>Visão do dia</strong><span class="src src-off">Não conectado</span></div>
+    <div class="day-main" id="dayAgenda">Agenda não conectada ao painel</div>
+    <div class="day-note" id="dayAgendaNote">Seus compromissos chegam por outro caminho: o aviso diário no Telegram, às 07:00. Este painel não lê o Google Calendar.</div>
+  </div>
+  <div class="day-tile">
+    <div class="day-tile-head"><strong><span class="ti">↗</span>Automações</strong><span class="src src-snap" id="autoSrc">Instantâneo</span></div>
+    <div class="day-main" id="autoMain">—</div>
+    <div class="day-note" id="autoNote">—</div>
+  </div>
+  <div class="day-tile">
+    <div class="day-tile-head"><strong><span class="ti">✉</span>Triagem de e-mails</strong><span class="src src-snap" id="mailSrc">Instantâneo</span></div>
+    <div class="day-main" id="mailMain">—</div>
+    <div class="day-note" id="mailNote">—</div>
+  </div>
+</div>
+
 <div class="grid stats">
   <div class="card"><div class="stat-top">Tarefas pendentes <span class="stat-icon">☷</span></div><div class="stat-value" id="pendingCount">0</div><div class="stat-foot">Atividades que pedem atenção</div></div>
   <div class="card"><div class="stat-top">Concluídas <span class="stat-icon" style="color:var(--mint)">✓</span></div><div class="stat-value" id="doneCount">0</div><div class="stat-foot">Tarefas finalizadas</div></div>
@@ -359,7 +420,12 @@ body{background:var(--nix-white);color:var(--nix-navy)}
   </div>
   <div class="grid">
     <div class="card"><div class="card-head"><h2>Hábitos de hoje</h2><button class="btn ghost" data-goto="habits">Abrir →</button></div><div id="overviewHabits" class="task-list"></div></div>
-    <div class="card"><div class="card-head"><h2>Central de automações</h2><button class="btn ghost" data-goto="connections">Configurar →</button></div><p class="muted" style="font-size:12px;margin-top:-5px">Prepare as conexões para consolidar sua rotina.</p><div class="integrations" id="overviewIntegrations"></div></div>
+    <div class="card"><div class="card-head"><h2>Central de notificações</h2><span class="src src-off">Não conectado</span></div>
+      <div class="notif-empty"><div class="ne-ico">◔</div><p><strong>Nenhum aviso para mostrar aqui</strong>O painel ainda não recebe notificações. Hoje os avisos do NIX chegam pelo Telegram, enviados pelos cenários do Make — este navegador não tem acesso a esse histórico.</p></div>
+    </div>
+    <div class="card"><div class="card-head"><h2>Resumo do sistema</h2><button class="btn ghost" data-goto="connections">Integrações →</button></div>
+      <div class="sys-list" id="sysList"></div>
+    </div>
   </div>
 </div>
 </section>
@@ -594,7 +660,50 @@ function nixOfferDownload(blob,filename){
  return safe;
 }
 
-const integrations=[['G','Google Calendar','Compromissos e agenda','Planejada'],['✉','Gmail','Mensagens e prioridades','Planejada'],['D','Google Drive','Documentos e arquivos','Planejada'],['↗','Make','Fluxos de automação','Planejada']];
+/* Integrações: estado real em 29/10/2026. "No Make" = conexão ativa nos cenários do
+   Make, fora deste painel. "Painel" = este navegador lê ou escreve a fonte. */
+const integrations=[['G','Google Calendar','Compromissos — ativa no Make, não no painel','No Make'],['✉','Gmail','Mensagens e marcadores — ativa no Make, não no painel','No Make'],['↗','Telegram','Canal de avisos do NIX — ativa no Make','No Make'],['≡','Make','3 cenários do NIX — 1 ativo, 2 inativos','No Make'],['D','Google Drive','Backups dos blueprints','No Make'],['☁','Supabase','Login e sincronização deste painel','Painel']];
+
+/* ------------------------------------------------------------------
+   NIX · Instantâneo do estado das automações.
+   NÃO é leitura ao vivo: o painel não tem acesso à API do Make, que
+   exigiria um token — e token não entra em página pública. Atualize
+   este objeto quando o estado mudar, e mude também a data.
+   ------------------------------------------------------------------ */
+const NIX_SNAPSHOT={
+  data:'29/10/2026',
+  cenarios:[
+    {id:6577006,nome:'Nix | Assistent',funcao:'Aviso de compromissos às 07:00',estado:'ativo'},
+    {id:6577298,nome:'Nix | Monitor de E-mails',funcao:'Triagem — aguardando homologação',estado:'inativo'},
+    {id:6584011,nome:'Nix | Monitor + Triagem (IA)',funcao:'Referência, não religar',estado:'inativo'}
+  ],
+  email:{monitorAtivo:false,marcadores:5,mensagensMarcadas:0,plano:'Free',opsRestantes:116,resetPlano:'09/11/2026'}
+};
+
+function nixRenderStatus(){
+  const s=NIX_SNAPSHOT,ativos=s.cenarios.filter(c=>c.estado==='ativo').length,
+        inativos=s.cenarios.filter(c=>c.estado==='inativo').length,
+        comErro=s.cenarios.filter(c=>c.estado==='erro').length;
+  const set=(id,txt)=>{const el=document.getElementById(id);if(el)el.textContent=txt};
+  set('autoMain',`${ativos} ativa${ativos===1?'':'s'} · ${inativos} inativa${inativos===1?'':'s'}`);
+  set('autoNote',`${comErro?comErro+' com erro. ':''}Estado registrado em ${s.data}; o painel não consulta o Make sozinho. Saldo do plano ${s.email.plano}: ${s.email.opsRestantes} operações até ${s.email.resetPlano}.`);
+  set('autoSrc',`Instantâneo ${s.data}`);
+  set('mailMain',s.email.monitorAtivo?'Monitor ativo':'Monitor inativo');
+  set('mailNote',`${s.email.marcadores} marcadores IA/ criados, ${s.email.mensagensMarcadas} mensagem${s.email.mensagensMarcadas===1?'':'s'} marcada${s.email.mensagensMarcadas===1?'':'s'} até agora. Nenhum e-mail é lido ou classificado por este painel.`);
+  set('mailSrc',`Instantâneo ${s.data}`);
+  const sys=document.getElementById('sysList');
+  if(sys){
+    const conectado=typeof nixCloudUser!=='undefined'&&nixCloudUser;
+    const linhas=[
+      ['Estado registrado em',s.data,'Automações e triagem — atualização manual'],
+      ['Sincronização na nuvem',conectado?'Conectada':'Desconectada','Supabase — login neste navegador'],
+      ['Dados deste painel','Neste navegador','Tarefas, hábitos, projetos e notas'],
+      ['Integrações ativas no Make',`${ativos} de ${s.cenarios.length} cenários`,'Calendar, Gmail, Telegram e IA do Make'],
+      ['Leitura ao vivo de agenda e e-mail','Indisponível','Exigiria token, que não entra em página pública']
+    ];
+    sys.innerHTML=linhas.map(([a,b,c])=>`<div class="sys-row"><span>${a}<small>${c}</small></span><strong>${b}</strong></div>`).join('');
+  }
+}
 function integrationHTML(x){return `<div class="integration"><div class="appicon">${x[0]}</div><div class="details"><strong>${x[1]}</strong><small>${x[2]}</small></div><span class="status">${x[3]}</span></div>`}
 function render(){
  const pending=state.tasks.filter(t=>!t.done).length,done=state.tasks.filter(t=>t.done).length,hab=state.habits.items.filter(Boolean).length,total=state.tasks.length,pct=total?Math.round(done/total*100):0,balance=(Number(state.income)||0)-(Number(state.expenses)||0);
@@ -608,7 +717,8 @@ function render(){
  document.getElementById('overviewHabits').innerHTML=names.map((n,i)=>`<div class="task"><span style="color:${state.habits.items[i]?'var(--mint)':'var(--muted)'}">${state.habits.items[i]?'✓':'○'}</span><span class="task-title">${n}</span></div>`).join('');
  document.getElementById('habitPercent').textContent=Math.round(hab/4*100)+'%';document.getElementById('habitProgress').style.width=(hab/4*100)+'%';
  document.getElementById('goalInput').value=state.goal||'';document.getElementById('goalWhy').value=state.goalWhy||'';document.getElementById('income').value=state.income||'';document.getElementById('expenses').value=state.expenses||'';document.getElementById('notesInput').value=state.notes||'';
- document.getElementById('overviewIntegrations').innerHTML=integrations.slice(0,3).map(integrationHTML).join('');document.getElementById('connectionsList').innerHTML=integrations.map(integrationHTML).join('');
+ const ovInt=document.getElementById('overviewIntegrations');if(ovInt)ovInt.innerHTML=integrations.slice(0,3).map(integrationHTML).join('');document.getElementById('connectionsList').innerHTML=integrations.map(integrationHTML).join('');
+ nixRenderStatus();
  document.querySelectorAll('[data-task]').forEach(el=>el.onchange=()=>{let t=state.tasks.find(t=>t.id===Number(el.dataset.task));if(t){t.done=el.checked;persist()}});
  document.querySelectorAll('[data-delete]').forEach(el=>el.onclick=()=>{state.tasks=state.tasks.filter(t=>t.id!==Number(el.dataset.delete));persist();toast('Tarefa removida')});
  document.querySelectorAll('[data-habit]').forEach(el=>el.onchange=()=>{state.habits.items[Number(el.dataset.habit)]=el.checked;persist()});
