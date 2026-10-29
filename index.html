@@ -118,6 +118,145 @@ body{background:#fff;color:var(--text)}
  .main{padding:20px 14px}
 }
 
+/* ===================================================================
+   NIX — IDENTIDADE VISUAL OFICIAL  ·  White / Navy / Aqua
+   Camada final de tema. Todas as cores da marca ficam nos tokens
+   abaixo: para ajustar a identidade, altere apenas o bloco :root.
+   Reversível: remover este bloco restaura o tema anterior.
+   =================================================================== */
+:root{
+  /* --- Paleta oficial --- */
+  --nix-white:#FFFFFF;
+  --nix-navy:#0B1F3A;
+  --nix-aqua:#75E0D0;
+
+  /* --- Derivados de estrutura (navy) --- */
+  --nix-navy-80:#2A4055;
+  --nix-navy-60:#4A5C70;
+  --nix-navy-08:#0B1F3A14;
+  --nix-navy-04:#0B1F3A0A;
+
+  /* --- Derivados de destaque (aqua) --- */
+  --nix-aqua-deep:#0E7C6B;   /* aqua escurecido: único uso em TEXTO sobre branco */
+  --nix-aqua-soft:#E8FAF6;   /* fundo de realce */
+  --nix-aqua-line:#B6EFE5;   /* borda de realce */
+
+  /* --- Neutros discretos --- */
+  --nix-gray-line:#E4E7EC;
+  --nix-gray-text:#5B6779;
+  --nix-gray-bg:#F7F8FA;
+
+  /* --- Semânticos --- */
+  --nix-ok:var(--nix-aqua-deep);
+  --nix-warn:#8A6100;
+  --nix-danger:#B42318;
+
+  /* --- Remapeamento das variáveis legadas --- */
+  --bg:var(--nix-white);
+  --panel:var(--nix-white);
+  --panel2:var(--nix-aqua-soft);
+  --line:var(--nix-gray-line);
+  --text:var(--nix-navy);
+  --muted:var(--nix-gray-text);
+  --pink:var(--nix-navy);
+  --pink2:var(--nix-aqua);
+  --mint:var(--nix-aqua-deep);
+  --blue:var(--nix-white);
+  --gold:var(--nix-aqua-deep);
+}
+
+/* --- Base --- */
+body{background:var(--nix-white);color:var(--nix-navy)}
+.app{background:var(--nix-white)}
+
+/* --- Navegação e cabeçalho --- */
+.sidebar{background:var(--nix-white);border-right:1px solid var(--nix-gray-line);box-shadow:4px 0 24px var(--nix-navy-04);color:var(--nix-navy)}
+.logo{background:var(--nix-navy);color:var(--nix-aqua);box-shadow:0 6px 18px var(--nix-navy-08)}
+.brand b{color:var(--nix-navy)}
+.brand small{color:var(--nix-gray-text)}
+.nav-label{color:var(--nix-navy-60)}
+.nav button{color:var(--nix-navy-80)}
+.nav .ico{color:var(--nix-navy-60)}
+.nav button:hover{background:var(--nix-aqua-soft);color:var(--nix-navy)}
+.nav button.active{background:var(--nix-aqua-soft);color:var(--nix-navy);box-shadow:inset 3px 0 var(--nix-aqua);font-weight:700}
+.nav button.active .ico{color:var(--nix-aqua-deep)}
+.side-note{background:var(--nix-gray-bg);border-color:var(--nix-gray-line);color:var(--nix-gray-text)}
+.side-note strong{color:var(--nix-navy)}
+.menu-toggle{border:1px solid var(--nix-gray-line);background:var(--nix-white);color:var(--nix-navy);box-shadow:0 2px 5px var(--nix-navy-04)}
+.sidebar-scrim{background:#0B1F3A66}
+.eyebrow{color:var(--nix-aqua-deep)}
+.topbar h1,.module-head h2,.section-title,.card h2{color:var(--nix-navy)}
+.sub,.section-desc,.stat-top,.stat-foot,.muted,.module-copy small{color:var(--nix-gray-text)}
+.date-pill{border-color:var(--nix-gray-line);background:var(--nix-white);color:var(--nix-gray-text)}
+
+/* --- Cartões e indicadores --- */
+.card{background:var(--nix-white);border-color:var(--nix-gray-line);box-shadow:0 8px 24px var(--nix-navy-04)}
+.stat-icon{background:var(--nix-aqua-soft);color:var(--nix-aqua-deep)}
+.stat-value{color:var(--nix-navy)}
+.goal{background:linear-gradient(120deg,var(--nix-aqua-soft),var(--nix-white));border-color:var(--nix-aqua-line)}
+.goal-text{color:var(--nix-navy)}
+.tag{background:var(--nix-aqua-soft);color:var(--nix-navy)}
+.progress{background:var(--nix-gray-line)}
+.progress span{background:linear-gradient(90deg,var(--nix-navy),var(--nix-aqua))}
+
+/* --- Botões e campos --- */
+.btn{border-color:var(--nix-gray-line);background:var(--nix-white);color:var(--nix-navy)}
+.btn:hover{border-color:var(--nix-navy-60)}
+.btn.primary{background:var(--nix-navy);border-color:var(--nix-navy);color:var(--nix-white)}
+.btn.primary:hover{background:#13304f;border-color:#13304f}
+.btn.ghost{background:transparent;color:var(--nix-navy)}
+.btn.danger{color:var(--nix-danger)}
+.field{background:var(--nix-white);color:var(--nix-navy);border-color:var(--nix-gray-line)}
+.field::placeholder{color:#98A2B3}
+.field:focus{border-color:var(--nix-aqua-deep);box-shadow:0 0 0 3px #75E0D059}
+.field-label{color:var(--nix-navy-80)}
+.task input,.habit input{accent-color:var(--nix-navy)}
+.task{border-bottom-color:var(--nix-gray-line)}
+.task-title{color:var(--nix-navy)}
+.task-title.done{color:#98A2B3}
+.habit{background:var(--nix-white);border-color:var(--nix-gray-line)}
+.habit.done{border-color:var(--nix-aqua);background:var(--nix-aqua-soft)}
+
+/* --- Status, alertas e notificações --- */
+.status{color:var(--nix-warn);background:#FFF6E0}
+.status.ready{color:var(--nix-aqua-deep);background:var(--nix-aqua-soft)}
+.toast{background:var(--nix-navy);color:var(--nix-white);border-color:var(--nix-navy);box-shadow:0 10px 40px #0B1F3A3D}
+#nixCloudAuth{background:var(--nix-aqua-soft);border-color:var(--nix-aqua-line)!important}
+#nixCloudAuth .card-head h2{color:var(--nix-navy)}
+
+/* --- Módulos do painel --- */
+.module-tile{border:1px solid var(--nix-gray-line);background:var(--nix-white);color:var(--nix-navy)}
+.module-tile:nth-child(even){background:var(--nix-white)}
+.module-tile:hover{box-shadow:0 8px 20px var(--nix-navy-08);border-color:var(--nix-aqua)}
+.module-icon{background:var(--nix-aqua-soft);color:var(--nix-navy)}
+.module-tile:nth-child(even) .module-icon{background:var(--nix-aqua-soft);color:var(--nix-navy)}
+.module-arrow{color:var(--nix-aqua-deep)}
+
+/* --- Integrações --- */
+.integration{border-color:var(--nix-gray-line);background:var(--nix-white)}
+.integration .appicon{background:var(--nix-aqua-soft);color:var(--nix-navy)}
+.integration strong{color:var(--nix-navy)}
+
+/* --- Estados: vazio, carregando, erro --- */
+.empty{border:1px dashed var(--nix-gray-line);background:var(--nix-gray-bg);color:var(--nix-gray-text)}
+.nix-loading{display:flex;align-items:center;gap:10px;padding:20px;color:var(--nix-gray-text);font-size:13px}
+.nix-loading::before{content:"";width:17px;height:17px;border-radius:50%;border:2px solid var(--nix-gray-line);border-top-color:var(--nix-aqua-deep);animation:nix-spin .7s linear infinite;flex:0 0 17px}
+@keyframes nix-spin{to{transform:rotate(360deg)}}
+.nix-error{padding:14px 16px;border-radius:12px;border:1px solid #FDA29B;background:#FFFBFA;color:var(--nix-danger);font-size:13px}
+.footer{color:var(--nix-gray-text);border-top-color:var(--nix-gray-line)}
+
+/* --- Acessibilidade: foco visível em teclado --- */
+:focus-visible{outline:2px solid var(--nix-aqua-deep);outline-offset:2px}
+
+/* --- Mobile (Android em primeiro lugar) --- */
+@media(max-width:680px){
+  .sidebar{background:var(--nix-white);box-shadow:12px 0 40px #0B1F3A29}
+  .nav button{color:var(--nix-navy-80);min-height:46px}
+  .module-tile{padding:13px}
+  .btn{min-height:42px}
+  .field{min-height:44px;font-size:16px}
+}
+
 </style>
 </head>
 <body>
@@ -616,7 +755,7 @@ function nixBuildMaterialSlides(text){
 document.getElementById('matPreviewBtn')?.addEventListener('click',()=>{
  const text=document.getElementById('matOutput')?.value.trim();if(!text){toast('Gere um material primeiro');return}
  const wrap=document.getElementById('matPreview'),host=document.getElementById('matPreviewSlides'),design=document.getElementById('matDesign')?.value||'executivo';
- const colors=design==='institucional'?{bg:'#ffffff',ink:'#101744',accent:'#f52b80',muted:'#5b627c'}:design==='treinamento'?{bg:'#fffdf7',ink:'#263238',accent:'#f6c945',muted:'#68747d'}:design==='minimal'?{bg:'#fff',ink:'#202633',accent:'#d5d9e0',muted:'#667085'}:{bg:'#fff',ink:'#243047',accent:'#f6c945',muted:'#657084'};
+ const colors=design==='institucional'?{bg:'#ffffff',ink:'#101744',accent:'#f52b80',muted:'#5b627c'}:design==='treinamento'?{bg:'#fffdf7',ink:'#263238',accent:'#f6c945',muted:'#68747d'}:design==='minimal'?{bg:'#fff',ink:'#202633',accent:'#d5d9e0',muted:'#667085'}:{bg:'#ffffff',ink:'#0B1F3A',accent:'#75E0D0',muted:'#5B6779'};
  host.replaceChildren();
  nixBuildMaterialSlides(text).forEach((g,i)=>{
   const card=document.createElement('article');card.style.cssText='aspect-ratio:16/9;min-height:180px;border:1px solid #d0d5dd;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 4px 14px #00000010;background:'+colors.bg+';color:'+colors.ink;
@@ -744,7 +883,7 @@ document.getElementById('matPptx')?.addEventListener('click',async()=>{
   const pptx=new pptxgen();pptx.layout='LAYOUT_WIDE';pptx.author='NIX Personal Intelligence';pptx.subject='Material gerado pelo NIX';pptx.title=document.getElementById('matTopic').value.trim()||'Material NIX';pptx.company='NIX Personal Intelligence';pptx.lang='pt-BR';
   pptx.theme={headFontFace:'Aptos Display',bodyFontFace:'Aptos',lang:'pt-BR'};
   const design=document.getElementById('matDesign')?.value||'executivo';
-  const palette=design==='institucional'?{accent:'F52B80',accent2:'101744',ink:'101744',muted:'5B627C',bg:'FFFFFF'}:design==='treinamento'?{accent:'F6C945',accent2:'F28C28',ink:'263238',muted:'68747D',bg:'FFFDF7'}:design==='minimal'?{accent:'D5D9E0',accent2:'667085',ink:'202633',muted:'667085',bg:'FFFFFF'}:{accent:'F6C945',accent2:'F28C28',ink:'243047',muted:'657084',bg:'FFFFFF'};
+  const palette=design==='institucional'?{accent:'F52B80',accent2:'101744',ink:'101744',muted:'5B627C',bg:'FFFFFF'}:design==='treinamento'?{accent:'F6C945',accent2:'F28C28',ink:'263238',muted:'68747D',bg:'FFFDF7'}:design==='minimal'?{accent:'D5D9E0',accent2:'667085',ink:'202633',muted:'667085',bg:'FFFFFF'}:{accent:'75E0D0',accent2:'0B1F3A',ink:'0B1F3A',muted:'5B6779',bg:'FFFFFF'};
   const title=document.getElementById('matTopic').value.trim()||'Material NIX';
   const type=document.getElementById('matType').selectedOptions[0]?.text||'Material';
   const raw=output.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
