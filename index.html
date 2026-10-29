@@ -403,6 +403,10 @@ input::placeholder,textarea::placeholder{color:#7C8FA8}
   .nix-float,.nix-glow,.nix-layer,.nix-core-pulse,.nix-status strong{animation:none!important}
 }
 
+/* --- Menu agrupado --- */
+.nav-grp{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#00CDB8;font-weight:800;padding:14px 12px 4px;margin-top:4px}
+.nav-grp:first-child{padding-top:6px}
+
 /* --- Módulo NIX: graduação, arcos e entrada de comandos --- */
 .nix-centro{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;z-index:2}
 .nix-marca{font-size:22px;font-weight:800;letter-spacing:.3em;color:#0B1F3A;padding-left:.3em}
@@ -448,17 +452,22 @@ input::placeholder,textarea::placeholder{color:#7C8FA8}
 <aside class="sidebar">
   <div class="brand"><div class="logo" role="img" aria-label="NIX"><svg viewBox="0 0 48 48" aria-hidden="true"><circle class="ring-a" cx="24" cy="24" r="14"/><circle class="ring-b" cx="24" cy="24" r="19"/><circle class="core" cx="24" cy="24" r="5.2"/><line class="tick" x1="24" y1="3" x2="24" y2="8"/><line class="tick" x1="24" y1="40" x2="24" y2="45"/><line class="tick" x1="3" y1="24" x2="8" y2="24"/><line class="tick" x1="40" y1="24" x2="45" y2="24"/></svg></div><div><b>NIX PESSOAL</b><small>PERSONAL INTELLIGENCE</small></div></div>
   <div><div class="nav-label">ESPAÇO PESSOAL</div><nav class="nav" id="nav">
+    <div class="nav-grp">Hoje</div>
     <button data-view="routine"><span class="ico">◷</span> Minha rotina</button>
     <button class="active" data-view="overview"><span class="ico">◈</span> Visão geral</button>
+    <div class="nav-grp">Trabalho</div>
     <button data-view="projects"><span class="ico">▣</span> Projetos</button>
-    <button data-view="study"><span class="ico">✦</span> Estudos & TCC</button>
-    <button data-view="materials"><span class="ico">✧</span> Gerador de materiais</button>
-    <button data-view="personal"><span class="ico">♡</span> Vida pessoal</button>
     <button data-view="tasks"><span class="ico">☷</span> Tarefas</button>
     <button data-view="goals"><span class="ico">◎</span> Objetivos</button>
+    <div class="nav-grp">Estudos</div>
+    <button data-view="study"><span class="ico">✦</span> Estudos & TCC</button>
+    <button data-view="materials"><span class="ico">✧</span> Gerador de materiais</button>
+    <div class="nav-grp">Pessoal</div>
+    <button data-view="personal"><span class="ico">♡</span> Vida pessoal</button>
     <button data-view="habits"><span class="ico">▦</span> Hábitos</button>
     <button data-view="finance"><span class="ico">◫</span> Finanças</button>
     <button data-view="notes"><span class="ico">✎</span> Anotações</button>
+    <div class="nav-grp">Sistema</div>
     <button data-view="connections"><span class="ico">⌘</span> Integrações</button>
   </nav></div>
   <div class="side-note"><strong>Seu sistema, suas regras.</strong>Seus dados deste protótipo ficam salvos localmente neste navegador. Nenhuma conta bancária ou caixa de e-mail é acessada.</div>
