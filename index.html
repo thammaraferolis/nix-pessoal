@@ -390,10 +390,10 @@ body{background:var(--nix-white);color:var(--nix-navy)}
      AO VIVO = lido agora neste navegador · INSTANTÂNEO = estado registrado numa data,
      não atualiza sozinho · NÃO CONECTADO = o painel não tem acesso a essa fonte. -->
 <div class="day-grid">
-  <div class="day-tile is-off">
-    <div class="day-tile-head"><strong><span class="ti">◷</span>Visão do dia</strong><span class="src src-off">Não conectado</span></div>
-    <div class="day-main" id="dayAgenda">Agenda não conectada ao painel</div>
-    <div class="day-note" id="dayAgendaNote">Seus compromissos chegam por outro caminho: o aviso diário no Telegram, às 07:00. Este painel não lê o Google Calendar.</div>
+  <div class="day-tile is-off" id="dayAgendaTile">
+    <div class="day-tile-head"><strong><span class="ti">◷</span>Visão do dia</strong><span class="src src-off" id="dayAgendaSrc">Conexão pendente</span></div>
+    <div class="day-main" id="dayAgenda">Agenda ainda não conectada</div>
+    <div class="day-note" id="dayAgendaNote">Enquanto não houver conexão, seus compromissos chegam pelo aviso diário no Telegram, às 07:00.</div>
   </div>
   <div class="day-tile">
     <div class="day-tile-head"><strong><span class="ti">↗</span>Automações</strong><span class="src src-snap" id="autoSrc">Instantâneo</span></div>
@@ -404,6 +404,24 @@ body{background:var(--nix-white);color:var(--nix-navy)}
     <div class="day-tile-head"><strong><span class="ti">✉</span>Triagem de e-mails</strong><span class="src src-snap" id="mailSrc">Instantâneo</span></div>
     <div class="day-main" id="mailMain">—</div>
     <div class="day-note" id="mailNote">—</div>
+  </div>
+</div>
+
+<div class="grid layout-two" style="margin-bottom:16px">
+  <div class="card">
+    <div class="card-head"><h2>Agenda</h2><span class="src src-off" id="agendaSrc">Conexão pendente</span></div>
+    <div id="agendaBody"></div>
+    <div class="toolbar" style="margin-top:14px">
+      <button class="btn primary" id="agendaConnect">Conectar Google Agenda</button>
+      <button class="btn" id="agendaRefresh" hidden>Atualizar</button>
+    </div>
+    <p class="day-note" id="agendaStamp" style="margin-top:10px"></p>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Central de comandos</h2><span class="src src-live">Ao vivo</span></div>
+    <p class="muted" style="font-size:12px;margin-top:-5px">Cada resposta diz de onde veio o dado. Comandos sem integração aparecem como indisponíveis.</p>
+    <div class="toolbar" id="cmdBar"></div>
+    <div id="cmdOut"></div>
   </div>
 </div>
 
@@ -533,6 +551,8 @@ body{background:var(--nix-white);color:var(--nix-navy)}
 </main></div><div id="toast" class="toast"></div>
 <!-- Biblioteca do PowerPoint carregada sob demanda com alternativas de CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Login do Google, usado só para autorizar a leitura da agenda. Gratuito, sem chave secreta. -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 const NIX_SUPABASE_URL='https://yfudeqzvngueiqratgit.supabase.co';
 const NIX_SUPABASE_KEY='sb_publishable_j0opSangOcOjMd4bxhYJjw_n7k-LCpr';
@@ -670,6 +690,170 @@ const integrations=[['G','Google Calendar','Compromissos — ativa no Make, não
    exigiria um token — e token não entra em página pública. Atualize
    este objeto quando o estado mudar, e mude também a data.
    ------------------------------------------------------------------ */
+/* ==================================================================
+   NIX · Google Agenda (somente leitura)
+   O Client ID do OAuth é PÚBLICO por natureza: identifica o aplicativo
+   e não autoriza nada sozinho. Este fluxo NÃO usa client secret —
+   nenhuma credencial secreta existe nesta página. O token de acesso
+   fica apenas em memória, nunca em localStorage nem em log.
+   Para ativar: crie um ID do cliente OAuth do tipo "Aplicativo da Web"
+   no Google Cloud Console, autorize a origem do site e cole abaixo.
+   ================================================================== */
+const NIX_GOOGLE_CLIENT_ID='';
+const NIX_CAL_SCOPE='https://www.googleapis.com/auth/calendar.readonly';
+let nixCalToken=null,nixCalClient=null,nixCalLastOk=null,nixCalState='pending';
+
+const nixFmtHora=d=>d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+const nixFmtData=d=>d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+function nixEhHoje(d){const h=new Date();return d.toDateString()===h.toDateString()}
+
+function nixSetAgendaState(estado,{titulo,nota,corpo,selo}={}){
+  nixCalState=estado;
+  const classes={pending:['src-off','Conexão pendente'],loading:['src-snap','Carregando'],live:['src-live','Ao vivo'],empty:['src-live','Ao vivo'],error:['src-off','Falha na conexão']};
+  const [cls,rotulo]=classes[estado]||classes.pending;
+  [['agendaSrc',selo||rotulo],['dayAgendaSrc',selo||rotulo]].forEach(([id,txt])=>{
+    const el=document.getElementById(id);if(el){el.className='src '+cls;el.textContent=txt}
+  });
+  const tile=document.getElementById('dayAgendaTile');
+  if(tile)tile.classList.toggle('is-off',estado!=='live');
+  const set=(id,txt)=>{const el=document.getElementById(id);if(el&&txt!=null)el.textContent=txt};
+  set('dayAgenda',titulo);set('dayAgendaNote',nota);
+  const body=document.getElementById('agendaBody');
+  if(body&&corpo!=null)body.innerHTML=corpo;
+}
+
+function nixAgendaPendente(msg){
+  const semId=!NIX_GOOGLE_CLIENT_ID;
+  nixSetAgendaState('pending',{
+    titulo:'Agenda ainda não conectada',
+    nota:'Enquanto não houver conexão, seus compromissos chegam pelo aviso diário no Telegram, às 07:00.',
+    corpo:`<div class="notif-empty"><div class="ne-ico">◷</div><p><strong>${msg||'Conexão pendente'}</strong>${semId?'Falta cadastrar o ID do cliente OAuth do Google neste painel. Enquanto isso, nenhum compromisso é lido — e nada é inventado no lugar.':'Clique em conectar para autorizar a leitura da sua agenda. O acesso é somente leitura e o token não é gravado neste navegador.'}</p></div>`
+  });
+  const st=document.getElementById('agendaStamp');
+  if(st)st.textContent=semId?'Nenhuma leitura realizada até agora.':'';
+}
+
+function nixRenderAgenda(eventos){
+  const agora=new Date();
+  const futuros=eventos.map(e=>({titulo:e.summary||'(sem título)',local:e.location||'',diaInteiro:!e.start?.dateTime,
+      ini:new Date(e.start?.dateTime||e.start?.date+'T00:00:00'),fim:new Date(e.end?.dateTime||e.end?.date+'T23:59:59')}))
+    .filter(e=>e.fim>=agora).sort((a,b)=>a.ini-b.ini);
+  nixCalLastOk=new Date();
+  const carimbo=document.getElementById('agendaStamp');
+  if(carimbo)carimbo.textContent=`Última atualização bem-sucedida: ${nixFmtHora(nixCalLastOk)} de ${nixFmtData(nixCalLastOk)}.`;
+  const hoje=futuros.filter(e=>nixEhHoje(e.ini)).length;
+  if(!futuros.length){
+    nixSetAgendaState('empty',{titulo:'Nenhum compromisso à frente',nota:'Agenda vazia — não há eventos futuros no período consultado.',
+      corpo:'<div class="notif-empty"><div class="ne-ico">○</div><p><strong>Agenda vazia</strong>Nenhum compromisso encontrado de agora em diante. Esta é uma leitura real da sua agenda, não ausência de dados.</p></div>'});
+    return;
+  }
+  const p=futuros[0];
+  const quando=p.diaInteiro?`${nixFmtData(p.ini)} · dia inteiro`:`${nixEhHoje(p.ini)?'hoje':nixFmtData(p.ini)} às ${nixFmtHora(p.ini)}`;
+  nixSetAgendaState('live',{
+    titulo:`${hoje} compromisso${hoje===1?'':'s'} hoje`,
+    nota:`Próximo: ${p.titulo} — ${quando}.`,
+    corpo:`<div class="task-list">${futuros.slice(0,6).map(e=>{
+      const q=e.diaInteiro?`${nixFmtData(e.ini)} · dia inteiro`:`${nixEhHoje(e.ini)?'hoje':nixFmtData(e.ini)} · ${nixFmtHora(e.ini)}–${nixFmtHora(e.fim)}`;
+      return `<div class="task"><span class="task-title"><strong>${nixEsc(e.titulo)}</strong><small style="display:block;color:var(--nix-gray-text)">${q}${e.local?' · '+nixEsc(e.local):''}</small></span></div>`;
+    }).join('')}</div>`
+  });
+}
+
+const nixEsc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function nixCalFetch(){
+  if(!nixCalToken){nixAgendaPendente('Conexão pendente');return}
+  nixSetAgendaState('loading',{titulo:'Consultando sua agenda…',nota:'Leitura em andamento.',corpo:'<div class="nix-loading">Buscando compromissos…</div>'});
+  try{
+    const url='https://www.googleapis.com/calendar/v3/calendars/primary/events?'+new URLSearchParams({
+      timeMin:new Date().toISOString(),maxResults:'10',singleEvents:'true',orderBy:'startTime'});
+    const r=await fetch(url,{headers:{Authorization:'Bearer '+nixCalToken}});
+    if(r.status===401||r.status===403){nixCalToken=null;nixSetAgendaState('error',{titulo:'Autorização expirada',nota:'Conecte novamente para ler a agenda.',corpo:'<div class="nix-error">A autorização expirou ou foi revogada. Clique em conectar para autorizar de novo.</div>'});return}
+    if(!r.ok){nixSetAgendaState('error',{titulo:'Não foi possível ler a agenda',nota:`O Google respondeu com erro ${r.status}.`,corpo:`<div class="nix-error">Falha ao consultar a agenda (HTTP ${r.status}). Nenhum dado foi exibido no lugar — tente atualizar em instantes.</div>`});return}
+    const dados=await r.json();
+    nixRenderAgenda(dados.items||[]);
+  }catch(e){
+    nixSetAgendaState('error',{titulo:'Sem conexão com o Google',nota:'Verifique a internet e tente atualizar.',corpo:'<div class="nix-error">Não foi possível falar com o Google Agenda. Nenhum compromisso é exibido enquanto a leitura falhar.</div>'});
+  }
+}
+
+function nixCalConnect(){
+  if(!NIX_GOOGLE_CLIENT_ID){nixAgendaPendente('Falta configurar o acesso');return}
+  if(!window.google?.accounts?.oauth2){nixSetAgendaState('error',{titulo:'Biblioteca do Google não carregou',nota:'Recarregue a página e tente de novo.',corpo:'<div class="nix-error">A biblioteca de login do Google não ficou disponível neste navegador.</div>'});return}
+  nixCalClient=nixCalClient||google.accounts.oauth2.initTokenClient({
+    client_id:NIX_GOOGLE_CLIENT_ID,scope:NIX_CAL_SCOPE,
+    callback:resp=>{
+      if(resp&&resp.access_token){nixCalToken=resp.access_token;document.getElementById('agendaRefresh')?.removeAttribute('hidden');nixCalFetch()}
+      else nixSetAgendaState('error',{titulo:'Autorização não concluída',nota:'A permissão não foi concedida.',corpo:'<div class="nix-error">A autorização foi cancelada ou negada. Nada foi lido.</div>'});
+    }
+  });
+  nixCalClient.requestAccessToken();
+}
+
+/* --- Central de comandos: só executa o que a integração atual sustenta --- */
+const NIX_PENDENCIAS=[
+  'Filtros nativos do Gmail: criar os 4 filtros manualmente (o conector não cria filtros).',
+  'Monitor de e-mails 6577298: aplicar 4 correções e homologar por execução manual.',
+  'Plano Free: 2 vagas de cenário ativo ocupadas — produção do e-mail depende de liberar uma.',
+  'Webhook órfão 2916774: decidir destino (ativo, sem cenário, URL pública).',
+  'Cenários do Creative Energy: mover para a pasta 290947.'
+];
+
+const NIX_COMANDOS=[
+  {id:'prox',rotulo:'Próximos compromissos',exige:'agenda'},
+  {id:'resumo',rotulo:'Resumo da agenda',exige:'agenda'},
+  {id:'autos',rotulo:'Estado das automações',exige:'snapshot'},
+  {id:'triagem',rotulo:'Estado da triagem',exige:'snapshot'},
+  {id:'pend',rotulo:'Pendências técnicas',exige:'local'}
+];
+
+function nixCmdSaida(selo,cls,html){
+  const out=document.getElementById('cmdOut');
+  if(out)out.innerHTML=`<div style="margin-top:12px;padding:14px;border:1px solid var(--nix-gray-line);border-radius:13px;background:var(--nix-gray-bg)"><div style="margin-bottom:9px"><span class="src ${cls}">${selo}</span></div><div style="font-size:13px;line-height:1.55;color:var(--nix-navy)">${html}</div></div>`;
+}
+
+async function nixExec(id){
+  const cmd=NIX_COMANDOS.find(c=>c.id===id);if(!cmd)return;
+  if(cmd.exige==='agenda'&&nixCalState!=='live'&&nixCalState!=='empty'){
+    nixCmdSaida('Indisponível','src-off',`<strong>Comando indisponível.</strong><br>Este comando depende da leitura da agenda, que ainda não está conectada. Conecte o Google Agenda no cartão ao lado e tente de novo. Nenhuma informação foi estimada no lugar.`);
+    return;
+  }
+  if(id==='prox'||id==='resumo'){
+    await nixCalFetch();
+    const corpo=document.getElementById('agendaBody')?.innerHTML||'';
+    const nota=document.getElementById('dayAgendaNote')?.textContent||'';
+    const carimbo=document.getElementById('agendaStamp')?.textContent||'';
+    nixCmdSaida('Ao vivo · Google Agenda','src-live',id==='prox'?corpo+`<p class="day-note" style="margin-top:8px">${carimbo}</p>`:`<strong>${document.getElementById('dayAgenda')?.textContent||''}</strong><br>${nota}<br><span class="day-note">${carimbo}</span>`);
+    return;
+  }
+  if(id==='autos'){
+    const s=NIX_SNAPSHOT;
+    nixCmdSaida('Instantâneo '+s.data,'src-snap',
+      s.cenarios.map(c=>`<strong>${nixEsc(c.nome)}</strong> — ${c.estado}<br><span class="day-note">${nixEsc(c.funcao)}</span>`).join('<br><br>')+
+      `<br><br><span class="day-note">Estado registrado em ${s.data}. O painel não consulta a API do Make: isso exigiria um token, que não entra em página pública.</span>`);
+    return;
+  }
+  if(id==='triagem'){
+    const e=NIX_SNAPSHOT.email;
+    nixCmdSaida('Instantâneo '+NIX_SNAPSHOT.data,'src-snap',
+      `<strong>Monitor ${e.monitorAtivo?'ativo':'inativo'}</strong><br>${e.marcadores} marcadores IA/ criados · ${e.mensagensMarcadas} mensagens marcadas.<br>Plano ${e.plano}: ${e.opsRestantes} operações até ${e.resetPlano}.<br><br><span class="day-note">Nenhum e-mail é lido, classificado ou marcado por este painel.</span>`);
+    return;
+  }
+  if(id==='pend'){
+    nixCmdSaida('Registro local','src-snap','<strong>Pendências técnicas registradas</strong><br>'+NIX_PENDENCIAS.map(p=>'• '+nixEsc(p)).join('<br>')+'<br><br><span class="day-note">Lista mantida no código do painel, atualizada manualmente.</span>');
+  }
+}
+
+function nixMontarComandos(){
+  const bar=document.getElementById('cmdBar');
+  if(!bar)return;
+  bar.innerHTML=NIX_COMANDOS.map(c=>`<button class="btn" data-cmd="${c.id}">${c.rotulo}</button>`).join('');
+  bar.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>nixExec(b.dataset.cmd));
+  document.getElementById('agendaConnect')?.addEventListener('click',nixCalConnect);
+  document.getElementById('agendaRefresh')?.addEventListener('click',nixCalFetch);
+  nixAgendaPendente();
+}
+
 const NIX_SNAPSHOT={
   data:'29/10/2026',
   cenarios:[
@@ -961,6 +1145,7 @@ sidebarScrim?.addEventListener('click',closeSideMenu);
 document.querySelectorAll('#nav [data-view]').forEach(btn=>btn.addEventListener('click',closeSideMenu));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSideMenu()});
 render();
+nixMontarComandos();
 nixWireAuth();
 
 async function nixLoadPptxLibrary(){
